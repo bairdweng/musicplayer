@@ -8,5 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
+@protocol MusicListViewControllerDelegate <NSObject>
+-(void)peakValue:(double)value;
+@end
+
 @interface MusicListViewController : UITableViewController
+@property(nonatomic,weak)id<MusicListViewControllerDelegate>delegate;
 @end

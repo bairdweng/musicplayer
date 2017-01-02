@@ -88,7 +88,7 @@ static VoiceHelper *_instance;
         NSLog(@"%@",url);
         NSDictionary *settings = @{AVSampleRateKey: @44100.0, AVFormatIDKey: [NSNumber numberWithInt:kAudioFormatAppleLossless], AVNumberOfChannelsKey: @2, AVEncoderAudioQualityKey: [NSNumber numberWithInt:AVAudioQualityMax]};
         _recorder = [[AVAudioRecorder alloc] initWithURL:url settings:settings error:nil];
-//        [_recorder prepareToRecord];
+        [_recorder prepareToRecord];
         _recorder.meteringEnabled = YES;
     }
     return _recorder;

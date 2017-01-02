@@ -11,13 +11,17 @@
 #import "MusicListCell.h"
 #import "MusicIndicator.h"
 #import "MBProgressHUD.h"
-
+#import "SimpleAudioPlayer.h"
 @interface MusicListViewController () <MusicViewControllerDelegate, MusicListCellDelegate>
 @property (nonatomic, strong) NSMutableArray *musicEntities;
 @property (nonatomic, assign) NSInteger currentIndex;
+@property(nonatomic,assign)BOOL isplayer;
 @end
 
-@implementation MusicListViewController
+@implementation MusicListViewController{
+    AVAudioPlayer *_audioPlayer;
+    NSTimer *_musicDurationTimer;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -25,6 +29,7 @@
     self.navigationItem.title = @"播放列表";
     self.tableView.separatorColor = [UIColor clearColor];
     [self headerRefreshing];
+    self.isplayer = NO;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -80,7 +85,7 @@
         Entity.fileName = @"1770059653_2050944_l";
         Entity.artistName = @"三輪学";
         [self.musicEntities addObject:Entity];
-
+    
     }
     
     [self.tableView reloadData];
@@ -90,17 +95,30 @@
 # pragma mark - Tableview delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    MusicViewController *musicVC = [MusicViewController sharedInstance];
-    musicVC.musicTitle = self.navigationItem.title;
-    musicVC.musicEntities = _musicEntities;
-    musicVC.specialIndex = indexPath.row;
-    musicVC.delegate = self;
-    [self presentToMusicViewWithMusicVC:musicVC];
-
-//    [self updatePlaybackIndicatorWithIndexPath:indexPath];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    MusicEntity *entity = self.musicEntities[indexPath.row];
+    if (!self.isplayer) {
+        _audioPlayer =  [SimpleAudioPlayer playFile:[entity.fileName stringByAppendingString:@".mp3"]];
+        self.isplayer = YES;
+       _musicDurationTimer = [NSTimer scheduledTimerWithTimeInterval: 0.06 target: self selector: @selector(levelTimerCallback:) userInfo: nil repeats: YES];
+    }
+    else{
+        [_audioPlayer stop];
+        self.isplayer = NO;
+        [_musicDurationTimer invalidate];
+    }
+  
 }
-
+-(void)levelTimerCallback:(NSTimer *)timer{
+    _audioPlayer.meteringEnabled = YES;//开启仪表计数功能
+    [ _audioPlayer updateMeters];
+    float temp = [_audioPlayer peakPowerForChannel:0];
+    double result = pow(10, (0.05 * temp));
+    if ([self.delegate respondsToSelector:@selector(peakValue:)]) {
+        [self.delegate peakValue:result];
+    }
+    NSLog(@"peak====%f",result);
+}
 # pragma mark - Jump to music view
 
 - (void)presentToMusicViewWithMusicVC:(MusicViewController *)musicVC {

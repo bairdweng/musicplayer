@@ -17,7 +17,7 @@
 #import "UIView+Animations.h"
 #import "NSString+Additions.h"
 #import "MBProgressHUD.h"
-
+#import <AVFoundation/AVFoundation.h>
 static void *kStatusKVOKey = &kStatusKVOKey;
 static void *kDurationKVOKey = &kDurationKVOKey;
 static void *kBufferingRatioKVOKey = &kBufferingRatioKVOKey;
@@ -76,6 +76,10 @@ static void *kBufferingRatioKVOKey = &kBufferingRatioKVOKey;
     _originArray = @[].mutableCopy;
     _randomArray = [[NSMutableArray alloc] initWithCapacity:0];
     [self addPanRecognizer];
+    
+ 
+
+    
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -382,7 +386,7 @@ static void *kBufferingRatioKVOKey = &kBufferingRatioKVOKey;
         [_musicSlider setValue:[_streamer currentTime] / [_streamer duration] animated:YES];
         [self updateProgressLabelValue];
     }
-    
+    NSLog(@"A=========%f",_streamer.volume);
 }
 
 - (void)updateProgressLabelValue {
@@ -417,8 +421,25 @@ static void *kBufferingRatioKVOKey = &kBufferingRatioKVOKey;
     
     NSString *soundFilePath = [[NSBundle mainBundle] pathForResource:_musicEntity.fileName ofType: @"mp3"];
     NSURL *fileURL = [[NSURL alloc] initFileURLWithPath:soundFilePath];
+    NSError * err;
+    AVAudioPlayer* player = [[AVAudioPlayer alloc]
+                             initWithContentsOfURL:fileURL
+                             error:&err ];//使用本地URL创建
+    player.meteringEnabled = YES;
+    
+    
+  
+
+    
+    [player play];
+
+    
+    
+    
     
 //    track.audioFileURL = [NSURL URLWithString:_musicEntity.musicUrl];
+    
+    return;
     track.audioFileURL = fileURL;
     
     @try {

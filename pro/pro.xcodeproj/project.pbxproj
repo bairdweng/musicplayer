@@ -21,6 +21,7 @@
 		429541651D98B10600AB9009 /* BlueServerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 429541641D98B10600AB9009 /* BlueServerManager.m */; };
 		42DA31F01DC2325D00487322 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 42DA31F21DC2325D00487322 /* Localizable.strings */; };
 		8976A6C8959BB8BA59D19A21 /* libPods-pro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 793ACCC95B9BA19B517727BA /* libPods-pro.a */; };
+		990AFD011E1ABE5B009E265C /* SimpleAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 990AFD001E1ABE5B009E265C /* SimpleAudioPlayer.m */; };
 		9911F9791E13B96100A08E3E /* GVUserDefaults+Properties.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F94D1E13B96100A08E3E /* GVUserDefaults+Properties.m */; };
 		9911F97A1E13B96100A08E3E /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9501E13B96100A08E3E /* NSString+Additions.m */; };
 		9911F97B1E13B96100A08E3E /* UIView+Animations.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9531E13B96100A08E3E /* UIView+Animations.m */; };
@@ -76,6 +77,8 @@
 		57EA328A5F6EFA2D4F1F4328 /* Pods-pro.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pro.release.xcconfig"; path = "Pods/Target Support Files/Pods-pro/Pods-pro.release.xcconfig"; sourceTree = "<group>"; };
 		793ACCC95B9BA19B517727BA /* libPods-pro.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-pro.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90C3494C6C7DF4EFA2DE8FCC /* Pods-pro.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pro.debug.xcconfig"; path = "Pods/Target Support Files/Pods-pro/Pods-pro.debug.xcconfig"; sourceTree = "<group>"; };
+		990AFCFF1E1ABE5B009E265C /* SimpleAudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleAudioPlayer.h; sourceTree = "<group>"; };
+		990AFD001E1ABE5B009E265C /* SimpleAudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleAudioPlayer.m; sourceTree = "<group>"; };
 		9911F9481E13976C00A08E3E /* BluetoothPro.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BluetoothPro.pch; sourceTree = "<group>"; };
 		9911F94C1E13B96100A08E3E /* GVUserDefaults+Properties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GVUserDefaults+Properties.h"; sourceTree = "<group>"; };
 		9911F94D1E13B96100A08E3E /* GVUserDefaults+Properties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GVUserDefaults+Properties.m"; sourceTree = "<group>"; };
@@ -416,6 +419,8 @@
 		9911F9581E13B96100A08E3E /* MusicList */ = {
 			isa = PBXGroup;
 			children = (
+				990AFCFF1E1ABE5B009E265C /* SimpleAudioPlayer.h */,
+				990AFD001E1ABE5B009E265C /* SimpleAudioPlayer.m */,
 				9911F95A1E13B96100A08E3E /* MusicListViewController.h */,
 				9911F95B1E13B96100A08E3E /* MusicListViewController.m */,
 			);
@@ -689,6 +694,7 @@
 				9911F9891E13B96100A08E3E /* NAKPlaybackIndicatorView.m in Sources */,
 				4278ADAE1DAB8A3D00A7184B /* FrequencyView.m in Sources */,
 				9911F9991E13CC0800A08E3E /* MusicListCell.m in Sources */,
+				990AFD011E1ABE5B009E265C /* SimpleAudioPlayer.m in Sources */,
 				9911F9961E13CC0800A08E3E /* MusicIndicator.m in Sources */,
 				9911F97A1E13B96100A08E3E /* NSString+Additions.m in Sources */,
 				9911F9831E13B96100A08E3E /* MusicHandler.m in Sources */,

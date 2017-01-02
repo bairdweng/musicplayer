@@ -20,7 +20,7 @@ const static CGFloat slider_margin = 22;
 const static CGFloat max_height = 100;
 const static CGFloat min_height = 5;
 
-@interface BLMusicViewController ()<VoiceHelperDelegate> {
+@interface BLMusicViewController ()<VoiceHelperDelegate,MusicListViewControllerDelegate> {
     CGFloat _element_height;
     UIButton *_rightButton;
     UILabel *_titleLabel;
@@ -63,6 +63,7 @@ const static CGFloat min_height = 5;
     MusicListViewController *listViewController = [storyboard instantiateViewControllerWithIdentifier:@"musicList"];
 //    UINavigationController *rootnavigation = [[UINavigationController alloc]initWithRootViewController:listViewController];
     [self.view addSubview:listViewController.view];
+    listViewController.delegate = self;
     [self addChildViewController:listViewController];
     listViewController.view.backgroundColor = [UIColor clearColor];
     [listViewController.view mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -71,7 +72,9 @@ const static CGFloat min_height = 5;
         make.top.equalTo(self.sensitivitySlider.mas_bottom).offset(10);
     }];
 }
-
+-(void)peakValue:(double)value{
+    [self volumeDidChanged:value];
+}
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
@@ -84,7 +87,6 @@ const static CGFloat min_height = 5;
         _titleLabel.text = @"RGB Bluetooth";
         [[VoiceHelper sharedInstance] record];
     }
-    
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -142,6 +144,7 @@ const static CGFloat min_height = 5;
 
 #pragma mark - VoiceHelperDelegate
 - (void)volumeDidChanged:(double)volume {
+   
     NSInteger temp = (NSInteger)((volume * _element_height) * 1.5);
     _frequencyView.volume = temp;
     
