@@ -22,7 +22,9 @@
     AVAudioPlayer *_audioPlayer;
     NSTimer *_musicDurationTimer;
 }
-
+-(void)dealloc{
+    [_musicDurationTimer invalidate];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];
@@ -88,6 +90,7 @@
     
     }
     
+    
     [self.tableView reloadData];
 }
 
@@ -99,25 +102,31 @@
     MusicEntity *entity = self.musicEntities[indexPath.row];
     if (!self.isplayer) {
         _audioPlayer =  [SimpleAudioPlayer playFile:[entity.fileName stringByAppendingString:@".mp3"]];
+        _audioPlayer.meteringEnabled = YES;//开启仪表计数功能
         self.isplayer = YES;
-       _musicDurationTimer = [NSTimer scheduledTimerWithTimeInterval: 0.06 target: self selector: @selector(levelTimerCallback:) userInfo: nil repeats: YES];
+        NSRunLoop *myRunLoop = [NSRunLoop currentRunLoop];
+       _musicDurationTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1 target: self selector: @selector(levelTimerCallback:) userInfo: nil repeats: YES];
+        [myRunLoop addTimer:_musicDurationTimer forMode:NSRunLoopCommonModes];
+        [self showMiddleHint:@"播放音乐"];
     }
     else{
         [_audioPlayer stop];
         self.isplayer = NO;
         [_musicDurationTimer invalidate];
+        if ([self.delegate respondsToSelector:@selector(peakValue:)]) {
+            [self.delegate peakValue:0.0f];
+        }
+        [self showMiddleHint:@"音乐停止"];
     }
   
 }
 -(void)levelTimerCallback:(NSTimer *)timer{
-    _audioPlayer.meteringEnabled = YES;//开启仪表计数功能
     [ _audioPlayer updateMeters];
     float temp = [_audioPlayer peakPowerForChannel:0];
     double result = pow(10, (0.05 * temp));
     if ([self.delegate respondsToSelector:@selector(peakValue:)]) {
         [self.delegate peakValue:result];
     }
-    NSLog(@"peak====%f",result);
 }
 # pragma mark - Jump to music view
 
@@ -137,14 +146,14 @@
 }
 
 - (void)updatePlaybackIndicatorOfCell:(MusicListCell *)cell {
-    return;
-    MusicEntity *music = cell.musicEntity;
-    if (music.musicId == [[MusicViewController sharedInstance] currentPlayingMusic].musicId) {
-        cell.state = NAKPlaybackIndicatorViewStateStopped;
-        cell.state = [MusicIndicator sharedInstance].state;
-    } else {
-        cell.state = NAKPlaybackIndicatorViewStateStopped;
-    }
+//    return;
+//    MusicEntity *music = cell.musicEntity;
+//    if (music.musicId == [[MusicViewController sharedInstance] currentPlayingMusic].musicId) {
+//        cell.state = NAKPlaybackIndicatorViewStateStopped;
+//        cell.state = [MusicIndicator sharedInstance].state;
+//    } else {
+//        cell.state = NAKPlaybackIndicatorViewStateStopped;
+//    }
 }
 
 - (void)updatePlaybackIndicatorOfVisisbleCells {

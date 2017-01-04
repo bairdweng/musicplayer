@@ -147,16 +147,17 @@ const static CGFloat min_height = 5;
    
     NSInteger temp = (NSInteger)((volume * _element_height) * 1.5);
     _frequencyView.volume = temp;
-    
-    NSData *sendData;
-    if (_flag) {
-        sendData = [[CMDModel sharedInstance] singleMusicCMD:volume];
-    }
-    else {
-        sendData = [[CMDModel sharedInstance] musicCMD:volume];
-    }
-    
-    [[BlueServerManager sharedInstance] sendData:sendData];
+    //异步发送。
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSData *sendData;
+        if (_flag) {
+            sendData = [[CMDModel sharedInstance] singleMusicCMD:volume];
+        }
+        else {
+            sendData = [[CMDModel sharedInstance] musicCMD:volume];
+        }
+        [[BlueServerManager sharedInstance] sendData:sendData];
+    });
 }
 
 #pragma mark - private

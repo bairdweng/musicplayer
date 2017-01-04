@@ -44,6 +44,7 @@
 		9911F9971E13CC0800A08E3E /* MusicSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9901E13CC0800A08E3E /* MusicSlider.m */; };
 		9911F9981E13CC0800A08E3E /* MusicList.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9911F9921E13CC0800A08E3E /* MusicList.storyboard */; };
 		9911F9991E13CC0800A08E3E /* MusicListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9941E13CC0800A08E3E /* MusicListCell.m */; };
+		992CC4431E1C911B003103B8 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 992CC4421E1C911B003103B8 /* Images.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -120,6 +121,7 @@
 		9911F9921E13CC0800A08E3E /* MusicList.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MusicList.storyboard; sourceTree = "<group>"; };
 		9911F9931E13CC0800A08E3E /* MusicListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MusicListCell.h; sourceTree = "<group>"; };
 		9911F9941E13CC0800A08E3E /* MusicListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MusicListCell.m; sourceTree = "<group>"; };
+		992CC4421E1C911B003103B8 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,6 +166,7 @@
 				02E8EE531D8A7E0C00C65F82 /* LaunchScreen.storyboard */,
 				02E8EE561D8A7E0C00C65F82 /* Info.plist */,
 				42DA31F21DC2325D00487322 /* Localizable.strings */,
+				992CC4421E1C911B003103B8 /* Images.xcassets */,
 				02E8EE451D8A7E0C00C65F82 /* Supporting Files */,
 			);
 			path = pro;
@@ -618,6 +621,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9911F9951E13CC0800A08E3E /* Music.storyboard in Resources */,
+				992CC4431E1C911B003103B8 /* Images.xcassets in Resources */,
 				02E8EE551D8A7E0C00C65F82 /* LaunchScreen.storyboard in Resources */,
 				02E8EE521D8A7E0C00C65F82 /* Assets.xcassets in Resources */,
 				9911F9841E13B96100A08E3E /* 1770040300_2031329_l.mp3 in Resources */,
@@ -825,6 +829,7 @@
 			baseConfigurationReference = 90C3494C6C7DF4EFA2DE8FCC /* Pods-pro.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 8K4DDU6TBB;
@@ -842,6 +847,7 @@
 			baseConfigurationReference = 57EA328A5F6EFA2D4F1F4328 /* Pods-pro.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = 8K4DDU6TBB;
