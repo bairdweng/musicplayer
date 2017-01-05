@@ -13,6 +13,7 @@
 #import "EFCircularSlider.h"
 #import "MBProgressHUD.h"
 #import <CoreBluetooth/CoreBluetooth.h>
+#import "BabyBluetooth.h"
 
 
 #define COLOR_BTN_SIZE CGSizeMake(40, 40)
@@ -42,9 +43,10 @@ const static CGFloat columnMargin = 20;
     
     NSArray<CBPeripheral *> *_peripherals;
     UIScrollView *_showScrollView;
-
+    
 //    UIButton *_rightButton;
 //    UILabel *_titleLabel;
+    
     BOOL _on;
 }
 @property (nonatomic, strong) NSArray<UIButton *> *colorButtons;
@@ -73,6 +75,9 @@ const static CGFloat columnMargin = 20;
 
 @property (nonatomic, strong) UITableView *sliderTableView;
 @property (nonatomic, strong) NSArray<NSString *> *dataSource;
+
+@property (nonatomic, strong) NSArray<CBPeripheral *> *Peripherals;
+
 @property (nonatomic, strong) BlueServerManager *manager;
 @property (nonatomic, assign) BOOL isShow;
 @property (nonatomic, strong) UIView *maskTableView;
@@ -88,6 +93,92 @@ const static CGFloat columnMargin = 20;
     return self;
 }
 
+
+
+/**
+ 蓝牙配置
+ */
+-(void)bluetoothConfig{
+    [self babyDelegate];
+    //设置委托后直接可以使用，无需等待CBCentralManagerStatePoweredOn状态
+    [BabyBluetooth shareBabyBluetooth].scanForPeripherals().begin();
+}
+- (BOOL)isContain:(CBPeripheral *)peripheral withperipherals:(NSMutableArray *)peripherals{
+    for (CBPeripheral *obj in peripherals) {
+        if ([obj.identifier.UUIDString isEqualToString:peripheral.identifier.UUIDString]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+/**
+    委托方法。
+ */
+-(void)babyDelegate{
+    NSMutableArray *peripherals = [[NSMutableArray alloc]init];
+    [[BabyBluetooth shareBabyBluetooth] setBlockOnDiscoverToPeripherals:^(CBCentralManager *central, CBPeripheral *peripheral, NSDictionary *advertisementData, NSNumber *RSSI) {
+        if (peripherals.count > 0) {
+            if (![self isContain:peripheral withperipherals:peripherals]) {
+                [peripherals addObject:peripheral];
+            }
+        }
+        else {
+            [peripherals addObject:peripheral];
+        }
+        self.Peripherals = peripherals;
+        [self.sliderTableView reloadData];
+    }];
+    [[BabyBluetooth shareBabyBluetooth]setBlockOnFailToConnect:^(CBCentralManager *central, CBPeripheral *peripheral, NSError *error) {
+        [self showMiddleHint:@"连接失败" WithLoading:NO];
+        [[BabyBluetooth shareBabyBluetooth]cancelScan];
+    }];
+    [[BabyBluetooth shareBabyBluetooth]setBlockOnConnected:^(CBCentralManager *central, CBPeripheral *peripheral) {
+        self.isShow = NO;
+        [self showMiddleHint:@"连接成功" WithLoading:NO];
+        [self ConnectSucessDeal];
+    }];
+    [[BabyBluetooth shareBabyBluetooth]setBlockOnDisconnect:^(CBCentralManager *central, CBPeripheral *peripheral, NSError *error) {
+        [self showMiddleHint:@"蓝牙已断开" WithLoading:NO];
+        [self ConnectSucessError];
+    }];
+    [[BabyBluetooth shareBabyBluetooth]setBlockOnDiscoverCharacteristics:^(CBPeripheral *peripheral, CBService *service, NSError *error) {
+        NSLog(@"CBService=============%@",service.UUID);
+    }];
+    
+    [[BabyBluetooth shareBabyBluetooth] setBlockOnDiscoverServicesAtChannel:@"test" block:^(CBPeripheral *peripheral, NSError *error) {
+        for (CBService *s in peripheral.services) {
+            ///插入section到tableview
+            
+            NSLog(@"s==========%@",s);
+        }
+        
+    }];
+    
+    
+    
+}
+//连接成功的处理
+-(void)ConnectSucessDeal{
+    self.isShow = NO;
+    _titleLabel.hidden = YES;
+    [_backButton setBackgroundImage:[UIImage imageNamed:@"backto"] forState:UIControlStateNormal];
+    NSData *sendData = [[CMDModel sharedInstance] queryCMD];
+    NSLog(@"query");
+    [[BlueServerManager sharedInstance] sendQueryData:sendData];
+}
+//连接失败的处理。
+-(void)ConnectSucessError{
+    _titleLabel.hidden = NO;
+    [_backButton setBackgroundImage:[UIImage imageNamed:@"backto_off.png"] forState:UIControlStateNormal];
+}
+
+
+
+
+
+
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     _showScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height-48)];
@@ -97,10 +188,11 @@ const static CGFloat columnMargin = 20;
     }
     _showScrollView.contentSize = CGSizeMake(self.view.frame.size.width, content);
     [self.view addSubview:_showScrollView];
-    
     [self configSelf];
     [self configSubviews];
     _timer = [NSTimer scheduledTimerWithTimeInterval:8.0f target:self selector:@selector(delayMethod) userInfo:nil repeats:NO];
+    [self bluetoothConfig];
+    
 }
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -113,7 +205,6 @@ const static CGFloat columnMargin = 20;
     if(_currentData) {
         [_manager sendData:_currentData];
     }
-    [_manager startScan];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -123,7 +214,7 @@ const static CGFloat columnMargin = 20;
 
 #pragma mark - UITableViewDelegate, UITableViewDataSource
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return self.dataSource.count;
+    return self.Peripherals.count;
 }
 
 - (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -136,7 +227,8 @@ const static CGFloat columnMargin = 20;
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     cell.backgroundColor = [UIColor clearColor];
-    NSString *text = _dataSource[indexPath.row];
+    CBPeripheral *Peripheral = self.Peripherals[indexPath.row];
+    NSString *text = [NSString stringWithFormat:@"%@#%@",Peripheral.name,Peripheral.identifier.UUIDString];
     NSArray<NSString *> *strings = [text componentsSeparatedByString:@"#"];
     if (strings && strings.count >= 1) {
         cell.textLabel.text = strings[0];
@@ -153,7 +245,18 @@ const static CGFloat columnMargin = 20;
 
 static UIAlertController *alert;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    [self connectionBlooteeOfindex:indexPath.row];
+    //连接蓝牙。
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    CBPeripheral *Peripheral = self.Peripherals[indexPath.row];
+    [BabyBluetooth shareBabyBluetooth].having(Peripheral).connectToPeripherals().begin();
+    for (CBService *Service in Peripheral.services){
+//        NSLog(@"s.characteristics=================%@",s.characteristics);
+//        [BlueServerManager sharedInstance].currentcharacteristic = Service.characteristics;
+
+    }
+    [BlueServerManager sharedInstance].currentPeripheral = Peripheral;
+
+    [self showMiddleHint:@"正在连接" WithLoading:YES];
 }
 -(void)connectionBlooteeOfindex:(NSInteger )index{
     _timer2 = [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(delayMethod2) userInfo:nil repeats:NO];
@@ -179,6 +282,12 @@ static UIAlertController *alert;
     _peripherals = peripherals;
     self.dataSource = [temp copy];
 }
+
+
+
+
+
+
 
 - (void)blueServerManager:(BlueServerManager *)manager didConnectedPeripheral:(CBPeripheral *)peripheral {
     //alert = nil;
@@ -400,7 +509,6 @@ static UIAlertController *alert;
     });*/
     self.isShow = !_isShow;
 }
-
 #pragma mark - notification
 - (void)bluDidDisconnectd: (NSNotification *)noti {
     _titleLabel.hidden = NO;
@@ -422,33 +530,33 @@ static UIAlertController *alert;
     UIColor *lowblue = [UIColor colorWithRed:0 green:1.0 blue:1.0 alpha:1.0];
     _backImage = @[[UIImage imageNamed:@"b3.png"],[UIImage imageNamed:@"b3.png"],[UIImage imageNamed:@"mulColor.png"]];
     _colors = @[[UIColor redColor], [UIColor blueColor], [UIColor greenColor], pick, [UIColor yellowColor], lowblue, [UIColor whiteColor]];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(bluDidDisconnectd:) name:@"BluServerDidDisconnected" object:nil];
 }
-
 - (void)sliderTableViewShow {
-    [_manager disconnectPeripheral];
+    //开始扫描
+    [BabyBluetooth shareBabyBluetooth].scanForPeripherals().begin();
+    [[BabyBluetooth shareBabyBluetooth]cancelAllPeripheralsConnection];
     _manager = nil;
     CGRect frame = self.sliderTableView.frame;
     frame.origin.x = 0;
     [UIView animateWithDuration:0.8 animations:^{
         _sliderTableView.frame = frame;
     } completion:^(BOOL finished) {
-        [self.manager startScan];
+//        [self.manager startScan];
     }];
 }
 - (void)sliderTableViewHidden {
+    //取消扫描。
+    [[BabyBluetooth shareBabyBluetooth]cancelScan];
     CGRect frame = self.sliderTableView.frame;
     frame.origin.x = - CGRectGetWidth(frame);
     [UIView animateWithDuration:0.8  animations:^{
         _sliderTableView.frame = frame;
     } completion:^(BOOL finished) {
-        //
     }];
 }
 
-- (void) configSubviews {
-    
+- (void)configSubviews {
     [self.colorButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [_showScrollView addSubview:obj];
     }];
@@ -463,9 +571,6 @@ static UIAlertController *alert;
     [_showScrollView addSubview:self.circularSlider];
     [_showScrollView insertSubview:self.imageView belowSubview:_circularSlider];
     [_showScrollView insertSubview:self.indictorView belowSubview:_circularSlider];
-    
-    
-    
     [_showScrollView addSubview:self.lightLabel];
     [_showScrollView addSubview:self.frequenceLabel];
     [_showScrollView addSubview:self.lineView];
@@ -496,8 +601,6 @@ static UIAlertController *alert;
         make.height.equalTo(@26);
     }];
     self.backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
-    
-    
     [self.powerButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.equalTo(self.view.mas_right).offset(-15);
         make.width.equalTo(@60);
@@ -584,7 +687,7 @@ static UIAlertController *alert;
                 frame.size.width = 0.213333 * SCREEN_WIDTH;
             }
             CGFloat pointX = 0.048 * SCREEN_WIDTH + (CGRectGetWidth(frame) + 0.021333 * SCREEN_WIDTH) * i;
-            CGFloat pointY = CGRectGetMaxY(self.colorButtons[0].frame) + columnMargin;
+            CGFloat pointY = _showScrollView.contentSize.height-60;
             frame.origin = CGPointMake(pointX, pointY);
             btn.frame = frame;
             [btn addTarget:self action:@selector(clickflickerButton:) forControlEvents:UIControlEventTouchUpInside];
@@ -620,7 +723,7 @@ static UIAlertController *alert;
                 frame.size.width = 0.213333 * SCREEN_WIDTH;
             }
             CGFloat pointX = CGRectGetMaxX([self.flickerButtons lastObject].frame) + 0.138 * SCREEN_WIDTH + (CGRectGetWidth(frame) + 8) * i;
-            CGFloat pointY = CGRectGetMinY(self.flickerButtons[0].frame);
+            CGFloat pointY = _showScrollView.contentSize.height-60;
             frame.origin = CGPointMake(pointX, pointY);
             btn.frame = frame;
             
@@ -633,12 +736,7 @@ static UIAlertController *alert;
                 [btn setTitle:NSLocalizedString(@"plusating", nil) forState:UIControlStateNormal];
             }
             else if(i == 2){
-//                UIImage *btnImage = _backImage[i];
-//                CGFloat btnImageW = btnImage.size.width * 0.5;
-//                CGFloat btnImageH = btnImage.size.height * 0.5;
-//                UIImage *newBtnImage = [btnImage resizableImageWithCapInsets:UIEdgeInsetsMake(btnImageH, btnImageW, btnImageH, btnImageW) resizingMode:UIImageResizingModeStretch];
                 [btn setBackgroundImage:_backImage[i] forState:UIControlStateNormal];
-                
             }
             else {
                 btn.backgroundColor = [UIColor redColor];
@@ -772,7 +870,6 @@ static UIAlertController *alert;
         _titleLabel.text = NSLocalizedString(@"status", nil);
         _titleLabel.textColor = [UIColor whiteColor];
         _titleLabel.font = [UIFont systemFontOfSize:17];
-//        _titleLabel.backgroundColor = [UIColor redColor];
         _titleLabel.textAlignment = NSTextAlignmentCenter;
     }
     return _titleLabel;
@@ -783,12 +880,7 @@ static UIAlertController *alert;
         _backButton = [UIButton new];
         CGRect frame = CGRectMake(15, 54, 60, 26);
         _backButton.frame = frame;
-        
         UIImage *img = [UIImage imageNamed:@"backto_off"];
-        if (ISTOTAKEEFFECT) {
-            _backButton.tintColor = THETIMECOLOR;
-            img = [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
-        }
         [_backButton setBackgroundImage:img forState:UIControlStateNormal];
         
         [_backButton addTarget:self action:@selector(clickBackButton:) forControlEvents:UIControlEventTouchUpInside];
@@ -800,7 +892,7 @@ static UIAlertController *alert;
     if (!_sliderTableView) {
         _sliderTableView = [UITableView new];
         CGRect frame = CGRectZero;
-        frame.size = SLIDER_TABLE_SIZE;
+        frame.size = CGSizeMake(240, _showScrollView.contentSize.height-CGRectGetMaxY(self.backButton.frame)-10);
         frame.origin.x = 0;
         frame.origin.y = CGRectGetMaxY(self.backButton.frame) + 10;
         _sliderTableView.frame = frame;
@@ -812,6 +904,8 @@ static UIAlertController *alert;
 }
 
 - (BlueServerManager *)manager {
+    
+    return nil;
     if (!_manager) {
         _manager = [BlueServerManager sharedInstance];
         _manager.delegate = self;
@@ -913,17 +1007,18 @@ static UIAlertController *alert;
     [_manager disconnectPeripheral];
     //_manager = nil;
 }
-
-
 - (void)showMiddleHint:(NSString *)hint WithLoading:(BOOL)loading {
+    [self showDissMiss];
     UIView *view = [[UIApplication sharedApplication].delegate window];
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:view animated:YES];
     hud.userInteractionEnabled = NO;
-    hud.animationType = MBProgressHUDAnimationZoom;
     if (loading) {
         hud.animationType = MBProgressHUDAnimationZoom;
     }
-
+    else{
+        hud.mode = MBProgressHUDModeText;
+        [hud hideAnimated:YES afterDelay:1.5];
+    }
     hud.label.text = hint;
     hud.label.font = [UIFont systemFontOfSize:15];
     hud.margin = 10.f;

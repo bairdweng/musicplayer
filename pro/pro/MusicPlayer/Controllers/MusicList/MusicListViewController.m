@@ -25,6 +25,9 @@
 -(void)dealloc{
     [_musicDurationTimer invalidate];
 }
+-(void)musicPlayerStop{
+    [_audioPlayer stop];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.tableView.tableFooterView = [[UIView alloc] initWithFrame:CGRectZero];

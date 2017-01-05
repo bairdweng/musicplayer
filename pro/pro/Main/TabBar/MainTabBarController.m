@@ -9,10 +9,12 @@
 #import "MainTabBarController.h"
 #import "ColorViewController.h"
 #import "BLMusicViewController.h"
-
+#import "BabyBluetooth.h"
 @interface MainTabBarController () {
     NSArray<NSString *> *_controllerNames;
     NSArray<UIViewController *> *_controllers;
+    BabyBluetooth *baby;
+
 }
 
 @end
@@ -21,10 +23,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//    self.tabBar.translucent = NO;
-//    self.tabBar.backgroundColor = [UIColor colorWithRed:32.0 / 255 green:37.0 / 255 blue:42.0 / 255 alpha:1.0];
-    //    [UITabBar appearance].translucent = NO;
-    //    [[UITabBar appearance] setBackgroundColor:[UIColor colorWithRed:32.0 / 255 green:37.0 / 255 blue:42.0 / 255 alpha:1.0]];
     UIView *view = [[UIView alloc] initWithFrame:self.tabBar.bounds];
     view.backgroundColor = [UIColor colorWithRed:32.0 / 255 green:37.0 / 255 blue:42.0 / 255 alpha:1.0];
     [self.tabBar insertSubview:view atIndex:0];
@@ -33,7 +31,6 @@
         self.tabBar.tintColor = THETIMECOLOR;
     }
 }
-
 #pragma mark - private
 - (void)configSelf {
     _controllerNames = @[@"ColorViewController",@"BLMusicViewController"];

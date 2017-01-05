@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <CoreBluetooth/CoreBluetooth.h>
 
 @class BlueServerManager;
 @class CBPeripheral;
@@ -21,9 +22,11 @@
 
 @interface BlueServerManager : NSObject
 @property (nonatomic, weak) id<BlueServerManagerDelegate> delegate;
+@property(nonatomic,strong)CBPeripheral *currentPeripheral;
+@property (nonatomic, strong)CBCharacteristic *currentcharacteristic;
+
 
 + (instancetype)sharedInstance;
-
 - (void)startScan;
 - (void)stopScan;
 - (void)connectPeripheral: (CBPeripheral *)peripheral;

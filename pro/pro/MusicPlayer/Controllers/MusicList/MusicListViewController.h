@@ -14,5 +14,6 @@
 @end
 
 @interface MusicListViewController : UITableViewController
+-(void)musicPlayerStop;
 @property(nonatomic,weak)id<MusicListViewControllerDelegate>delegate;
 @end

@@ -22,6 +22,15 @@
 		42DA31F01DC2325D00487322 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 42DA31F21DC2325D00487322 /* Localizable.strings */; };
 		8976A6C8959BB8BA59D19A21 /* libPods-pro.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 793ACCC95B9BA19B517727BA /* libPods-pro.a */; };
 		990AFD011E1ABE5B009E265C /* SimpleAudioPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 990AFD001E1ABE5B009E265C /* SimpleAudioPlayer.m */; };
+		990D37A81E1E2D3900926D08 /* BabyBluetooth.m in Sources */ = {isa = PBXBuildFile; fileRef = 990D37971E1E2D3900926D08 /* BabyBluetooth.m */; };
+		990D37A91E1E2D3900926D08 /* BabyCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 990D37991E1E2D3900926D08 /* BabyCallback.m */; };
+		990D37AA1E1E2D3900926D08 /* BabyCentralManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 990D379B1E1E2D3900926D08 /* BabyCentralManager.m */; };
+		990D37AB1E1E2D3900926D08 /* BabyDefine.m in Sources */ = {isa = PBXBuildFile; fileRef = 990D379D1E1E2D3900926D08 /* BabyDefine.m */; };
+		990D37AC1E1E2D3900926D08 /* BabyOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = 990D379F1E1E2D3900926D08 /* BabyOptions.m */; };
+		990D37AD1E1E2D3900926D08 /* BabyPeripheralManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 990D37A11E1E2D3900926D08 /* BabyPeripheralManager.m */; };
+		990D37AE1E1E2D3900926D08 /* BabyRhythm.m in Sources */ = {isa = PBXBuildFile; fileRef = 990D37A31E1E2D3900926D08 /* BabyRhythm.m */; };
+		990D37AF1E1E2D3900926D08 /* BabySpeaker.m in Sources */ = {isa = PBXBuildFile; fileRef = 990D37A51E1E2D3900926D08 /* BabySpeaker.m */; };
+		990D37B01E1E2D3900926D08 /* BabyToy.m in Sources */ = {isa = PBXBuildFile; fileRef = 990D37A71E1E2D3900926D08 /* BabyToy.m */; };
 		9911F9791E13B96100A08E3E /* GVUserDefaults+Properties.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F94D1E13B96100A08E3E /* GVUserDefaults+Properties.m */; };
 		9911F97A1E13B96100A08E3E /* NSString+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9501E13B96100A08E3E /* NSString+Additions.m */; };
 		9911F97B1E13B96100A08E3E /* UIView+Animations.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9531E13B96100A08E3E /* UIView+Animations.m */; };
@@ -78,6 +87,24 @@
 		90C3494C6C7DF4EFA2DE8FCC /* Pods-pro.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pro.debug.xcconfig"; path = "Pods/Target Support Files/Pods-pro/Pods-pro.debug.xcconfig"; sourceTree = "<group>"; };
 		990AFCFF1E1ABE5B009E265C /* SimpleAudioPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleAudioPlayer.h; sourceTree = "<group>"; };
 		990AFD001E1ABE5B009E265C /* SimpleAudioPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SimpleAudioPlayer.m; sourceTree = "<group>"; };
+		990D37961E1E2D3900926D08 /* BabyBluetooth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BabyBluetooth.h; sourceTree = "<group>"; };
+		990D37971E1E2D3900926D08 /* BabyBluetooth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BabyBluetooth.m; sourceTree = "<group>"; };
+		990D37981E1E2D3900926D08 /* BabyCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BabyCallback.h; sourceTree = "<group>"; };
+		990D37991E1E2D3900926D08 /* BabyCallback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BabyCallback.m; sourceTree = "<group>"; };
+		990D379A1E1E2D3900926D08 /* BabyCentralManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BabyCentralManager.h; sourceTree = "<group>"; };
+		990D379B1E1E2D3900926D08 /* BabyCentralManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BabyCentralManager.m; sourceTree = "<group>"; };
+		990D379C1E1E2D3900926D08 /* BabyDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BabyDefine.h; sourceTree = "<group>"; };
+		990D379D1E1E2D3900926D08 /* BabyDefine.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BabyDefine.m; sourceTree = "<group>"; };
+		990D379E1E1E2D3900926D08 /* BabyOptions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BabyOptions.h; sourceTree = "<group>"; };
+		990D379F1E1E2D3900926D08 /* BabyOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BabyOptions.m; sourceTree = "<group>"; };
+		990D37A01E1E2D3900926D08 /* BabyPeripheralManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BabyPeripheralManager.h; sourceTree = "<group>"; };
+		990D37A11E1E2D3900926D08 /* BabyPeripheralManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BabyPeripheralManager.m; sourceTree = "<group>"; };
+		990D37A21E1E2D3900926D08 /* BabyRhythm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BabyRhythm.h; sourceTree = "<group>"; };
+		990D37A31E1E2D3900926D08 /* BabyRhythm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BabyRhythm.m; sourceTree = "<group>"; };
+		990D37A41E1E2D3900926D08 /* BabySpeaker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BabySpeaker.h; sourceTree = "<group>"; };
+		990D37A51E1E2D3900926D08 /* BabySpeaker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BabySpeaker.m; sourceTree = "<group>"; };
+		990D37A61E1E2D3900926D08 /* BabyToy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BabyToy.h; sourceTree = "<group>"; };
+		990D37A71E1E2D3900926D08 /* BabyToy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BabyToy.m; sourceTree = "<group>"; };
 		9911F9481E13976C00A08E3E /* BluetoothPro.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BluetoothPro.pch; sourceTree = "<group>"; };
 		9911F94C1E13B96100A08E3E /* GVUserDefaults+Properties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GVUserDefaults+Properties.h"; sourceTree = "<group>"; };
 		9911F94D1E13B96100A08E3E /* GVUserDefaults+Properties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GVUserDefaults+Properties.m"; sourceTree = "<group>"; };
@@ -153,6 +180,7 @@
 		02E8EE441D8A7E0C00C65F82 /* pro */ = {
 			isa = PBXGroup;
 			children = (
+				990D37951E1E2D3900926D08 /* BluetoothStubOnIOS */,
 				9911F9491E13B96100A08E3E /* MusicPlayer */,
 				4279D75E1DAA27DD00CA60EE /* Resorce */,
 				02E8EE731D8A825F00C65F82 /* Expand */,
@@ -342,6 +370,31 @@
 			children = (
 			);
 			path = Connect;
+			sourceTree = "<group>";
+		};
+		990D37951E1E2D3900926D08 /* BluetoothStubOnIOS */ = {
+			isa = PBXGroup;
+			children = (
+				990D37961E1E2D3900926D08 /* BabyBluetooth.h */,
+				990D37971E1E2D3900926D08 /* BabyBluetooth.m */,
+				990D37981E1E2D3900926D08 /* BabyCallback.h */,
+				990D37991E1E2D3900926D08 /* BabyCallback.m */,
+				990D379A1E1E2D3900926D08 /* BabyCentralManager.h */,
+				990D379B1E1E2D3900926D08 /* BabyCentralManager.m */,
+				990D379C1E1E2D3900926D08 /* BabyDefine.h */,
+				990D379D1E1E2D3900926D08 /* BabyDefine.m */,
+				990D379E1E1E2D3900926D08 /* BabyOptions.h */,
+				990D379F1E1E2D3900926D08 /* BabyOptions.m */,
+				990D37A01E1E2D3900926D08 /* BabyPeripheralManager.h */,
+				990D37A11E1E2D3900926D08 /* BabyPeripheralManager.m */,
+				990D37A21E1E2D3900926D08 /* BabyRhythm.h */,
+				990D37A31E1E2D3900926D08 /* BabyRhythm.m */,
+				990D37A41E1E2D3900926D08 /* BabySpeaker.h */,
+				990D37A51E1E2D3900926D08 /* BabySpeaker.m */,
+				990D37A61E1E2D3900926D08 /* BabyToy.h */,
+				990D37A71E1E2D3900926D08 /* BabyToy.m */,
+			);
+			path = BluetoothStubOnIOS;
 			sourceTree = "<group>";
 		};
 		9911F9491E13B96100A08E3E /* MusicPlayer */ = {
@@ -681,6 +734,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9911F9871E13B96100A08E3E /* Track.m in Sources */,
+				990D37AE1E1E2D3900926D08 /* BabyRhythm.m in Sources */,
 				9911F9791E13B96100A08E3E /* GVUserDefaults+Properties.m in Sources */,
 				4279D75D1DA9D98300CA60EE /* EFCircularSlider.m in Sources */,
 				9911F9801E13B96100A08E3E /* MusicEntity.m in Sources */,
@@ -689,23 +743,31 @@
 				02E8EE6E1D8A80E900C65F82 /* BLMusicViewController.m in Sources */,
 				9911F9891E13B96100A08E3E /* NAKPlaybackIndicatorView.m in Sources */,
 				4278ADAE1DAB8A3D00A7184B /* FrequencyView.m in Sources */,
+				990D37AA1E1E2D3900926D08 /* BabyCentralManager.m in Sources */,
 				9911F9991E13CC0800A08E3E /* MusicListCell.m in Sources */,
 				990AFD011E1ABE5B009E265C /* SimpleAudioPlayer.m in Sources */,
 				9911F9961E13CC0800A08E3E /* MusicIndicator.m in Sources */,
 				9911F97A1E13B96100A08E3E /* NSString+Additions.m in Sources */,
 				9911F9831E13B96100A08E3E /* MusicHandler.m in Sources */,
+				990D37AB1E1E2D3900926D08 /* BabyDefine.m in Sources */,
+				990D37AF1E1E2D3900926D08 /* BabySpeaker.m in Sources */,
 				9911F9811E13B96100A08E3E /* MusicListEntity.m in Sources */,
 				02E8EE721D8A814A00C65F82 /* MainTabBarController.m in Sources */,
+				990D37AC1E1E2D3900926D08 /* BabyOptions.m in Sources */,
 				9911F97E1E13B96100A08E3E /* MusicListViewController.m in Sources */,
 				9911F9971E13CC0800A08E3E /* MusicSlider.m in Sources */,
+				990D37A81E1E2D3900926D08 /* BabyBluetooth.m in Sources */,
+				990D37AD1E1E2D3900926D08 /* BabyPeripheralManager.m in Sources */,
 				02E8EE471D8A7E0C00C65F82 /* main.m in Sources */,
 				9911F9881E13B96100A08E3E /* NAKPlaybackIndicatorContentView.m in Sources */,
 				4278ADAB1DAB7E9C00A7184B /* VoiceHelper.m in Sources */,
 				9911F9821E13B96100A08E3E /* BaseHelper.m in Sources */,
 				02E8EE601D8A7EC500C65F82 /* AppDelegate.m in Sources */,
 				02E8EE6B1D8A803200C65F82 /* ColorViewController.m in Sources */,
+				990D37A91E1E2D3900926D08 /* BabyCallback.m in Sources */,
 				9911F97B1E13B96100A08E3E /* UIView+Animations.m in Sources */,
 				422037EB1D99164000377771 /* CMDModel.m in Sources */,
+				990D37B01E1E2D3900926D08 /* BabyToy.m in Sources */,
 				9911F97F1E13B96100A08E3E /* BaseEntity.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

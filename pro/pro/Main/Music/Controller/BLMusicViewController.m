@@ -25,6 +25,7 @@ const static CGFloat min_height = 5;
     UIButton *_rightButton;
     UILabel *_titleLabel;
     UIScrollView *_showScrollView;
+    MusicListViewController *_listViewController;
     BOOL _on;
     BOOL _isplayer;
 }
@@ -63,15 +64,14 @@ const static CGFloat min_height = 5;
     [self configMusicListView];
     _isplayer = NO;
 }
-
 -(void)configMusicListView{
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MusicList" bundle:[NSBundle mainBundle]];
-    MusicListViewController *listViewController = [storyboard instantiateViewControllerWithIdentifier:@"musicList"];
-    [_showScrollView addSubview:listViewController.view];
-    listViewController.delegate = self;
-    [self addChildViewController:listViewController];
-    listViewController.view.backgroundColor = [UIColor clearColor];
-    listViewController.view.frame = CGRectMake(0, self.sensitivitySlider.frame.origin.y+30, self.view.frame.size.width, 100);
+    _listViewController = [storyboard instantiateViewControllerWithIdentifier:@"musicList"];
+    [_showScrollView addSubview:_listViewController.view];
+    _listViewController.delegate = self;
+    [self addChildViewController:_listViewController];
+    _listViewController.view.backgroundColor = [UIColor clearColor];
+    _listViewController.view.frame = CGRectMake(0, self.sensitivitySlider.frame.origin.y+30, self.view.frame.size.width, 100);
 }
 -(void)peakValue:(double)value{
     NSInteger temp = (NSInteger)((value * _element_height) * 1.5);
@@ -110,6 +110,8 @@ const static CGFloat min_height = 5;
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     [[VoiceHelper sharedInstance] pause];
+    [_listViewController musicPlayerStop];
+    _isplayer = NO;
 }
 
 - (void)dealloc {
@@ -126,7 +128,6 @@ const static CGFloat min_height = 5;
 }
 
 - (void)sliderValueChanged: (UISlider *)sender {
-//    _element_height = sender.value;
     [CMDModel sharedInstance].sentivity =  1.0 / sender.value;
 }
 

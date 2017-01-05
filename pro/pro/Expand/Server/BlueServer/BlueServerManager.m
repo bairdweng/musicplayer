@@ -7,7 +7,6 @@
 //
 
 #import "BlueServerManager.h"
-#import <CoreBluetooth/CoreBluetooth.h>
 #import <UIKit/UIKit.h>
 #import "MainMacos.h"
 
@@ -38,12 +37,12 @@ static NSString *const name = @"SH-HC-08";
 }
 
 - (void)startScan {
-    _manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
+//    _manager = [[CBCentralManager alloc] initWithDelegate:self queue:nil];
     
 }
 
 - (void)stopScan {
-    [_manager stopScan];
+//    [_manager stopScan];
 }
 
 - (void)connectPeripheral: (CBPeripheral *)peripheral {
@@ -54,22 +53,25 @@ static NSString *const name = @"SH-HC-08";
 //    if (!([peripheral.name isEqualToString:name])) {
 ////        [UIAlertController alertControllerWithTitle:@"tip" message:@"此设备不匹配" preferredStyle:UIAlertControllerStyleAlert];
 //    }
-       _peripheral = [peripheral copy];
-        _peripheral.delegate = self;
-//        [self connect:peripheral];
-    [_manager connectPeripheral:_peripheral options:nil];
-    [_peripheral readRSSI];
+//       _peripheral = [peripheral copy];
+//        _peripheral.delegate = self;
+////        [self connect:peripheral];
+//    [_manager connectPeripheral:_peripheral options:nil];
+//    [_peripheral readRSSI];
 
 
 }
 
 - (void)disconnectPeripheral {
+    /*
     if (!_peripheral) {
         return;
     }
     [_manager cancelPeripheralConnection:_peripheral];
+     */
 }
-- (void)sendData: (NSData *)data {
+- (void)sendData: (NSData *)data{
+    /*
     if (!_peripheral) {
         return;
     }
@@ -80,10 +82,17 @@ static NSString *const name = @"SH-HC-08";
     
     //NSLog(@"send data");
     [[NSNotificationCenter defaultCenter] postNotificationName:@"kBluServerSendData" object:nil userInfo:@{@"data": data}];
-    
-    
-    
+     */
 //    [_peripheral readValueForCharacteristic:_characteristic];
+    
+    //发送数据呀
+    NSLog(@"data=====%@",data);
+    NSLog(@"data=====%@",_characteristic);
+    if (self.currentPeripheral) {
+        [self.currentPeripheral writeValue:data forCharacteristic:self.currentcharacteristic type:CBCharacteristicWriteWithResponse];
+    }
+     [[NSNotificationCenter defaultCenter] postNotificationName:@"kBluServerSendData" object:nil userInfo:@{@"data": data}];
+    
 }
 
 
@@ -116,7 +125,7 @@ static NSString *const name = @"SH-HC-08";
     else {
         [_peripherals addObject:peripheral];
     }
-    NSLog(@"能发现设备:%@",peripheral.name);
+//    NSLog(@"能发现设备:%@",peripheral.name);
     [_delegate blueServerManager:self didDiscoverPeripherals:[_peripherals copy]];
  //   _peripheral = peripheral;
 //    _peripheral.delegate = self;
