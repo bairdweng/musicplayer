@@ -33,9 +33,7 @@
 		9911F9811E13B96100A08E3E /* MusicListEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9631E13B96100A08E3E /* MusicListEntity.m */; };
 		9911F9821E13B96100A08E3E /* BaseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9661E13B96100A08E3E /* BaseHelper.m */; };
 		9911F9831E13B96100A08E3E /* MusicHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9681E13B96100A08E3E /* MusicHandler.m */; };
-		9911F9841E13B96100A08E3E /* 1770040300_2031329_l.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9911F96D1E13B96100A08E3E /* 1770040300_2031329_l.mp3 */; };
 		9911F9851E13B96100A08E3E /* 1770059653_2050944_l.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9911F96E1E13B96100A08E3E /* 1770059653_2050944_l.mp3 */; };
-		9911F9861E13B96100A08E3E /* 1771694697_4194836_l.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9911F96F1E13B96100A08E3E /* 1771694697_4194836_l.mp3 */; };
 		9911F9871E13B96100A08E3E /* Track.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9731E13B96100A08E3E /* Track.m */; };
 		9911F9881E13B96100A08E3E /* NAKPlaybackIndicatorContentView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9761E13B96100A08E3E /* NAKPlaybackIndicatorContentView.m */; };
 		9911F9891E13B96100A08E3E /* NAKPlaybackIndicatorView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9781E13B96100A08E3E /* NAKPlaybackIndicatorView.m */; };
@@ -104,9 +102,7 @@
 		9911F9671E13B96100A08E3E /* MusicHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MusicHandler.h; sourceTree = "<group>"; };
 		9911F9681E13B96100A08E3E /* MusicHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MusicHandler.m; sourceTree = "<group>"; };
 		9911F96A1E13B96100A08E3E /* UIConstant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIConstant.h; sourceTree = "<group>"; };
-		9911F96D1E13B96100A08E3E /* 1770040300_2031329_l.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = 1770040300_2031329_l.mp3; sourceTree = "<group>"; };
 		9911F96E1E13B96100A08E3E /* 1770059653_2050944_l.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = 1770059653_2050944_l.mp3; sourceTree = "<group>"; };
-		9911F96F1E13B96100A08E3E /* 1771694697_4194836_l.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = 1771694697_4194836_l.mp3; sourceTree = "<group>"; };
 		9911F9721E13B96100A08E3E /* Track.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Track.h; sourceTree = "<group>"; };
 		9911F9731E13B96100A08E3E /* Track.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Track.m; sourceTree = "<group>"; };
 		9911F9751E13B96100A08E3E /* NAKPlaybackIndicatorContentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NAKPlaybackIndicatorContentView.h; sourceTree = "<group>"; };
@@ -474,9 +470,7 @@
 		9911F96C1E13B96100A08E3E /* Musics */ = {
 			isa = PBXGroup;
 			children = (
-				9911F96D1E13B96100A08E3E /* 1770040300_2031329_l.mp3 */,
 				9911F96E1E13B96100A08E3E /* 1770059653_2050944_l.mp3 */,
-				9911F96F1E13B96100A08E3E /* 1771694697_4194836_l.mp3 */,
 			);
 			path = Musics;
 			sourceTree = "<group>";
@@ -624,9 +618,7 @@
 				992CC4431E1C911B003103B8 /* Images.xcassets in Resources */,
 				02E8EE551D8A7E0C00C65F82 /* LaunchScreen.storyboard in Resources */,
 				02E8EE521D8A7E0C00C65F82 /* Assets.xcassets in Resources */,
-				9911F9841E13B96100A08E3E /* 1770040300_2031329_l.mp3 in Resources */,
 				9911F9981E13CC0800A08E3E /* MusicList.storyboard in Resources */,
-				9911F9861E13B96100A08E3E /* 1771694697_4194836_l.mp3 in Resources */,
 				42DA31F01DC2325D00487322 /* Localizable.strings in Resources */,
 				9911F97D1E13B96100A08E3E /* music_list.json in Resources */,
 				9911F9851E13B96100A08E3E /* 1770059653_2050944_l.mp3 in Resources */,

@@ -24,7 +24,9 @@ const static CGFloat min_height = 5;
     CGFloat _element_height;
     UIButton *_rightButton;
     UILabel *_titleLabel;
+    UIScrollView *_showScrollView;
     BOOL _on;
+    BOOL _isplayer;
 }
 @property (nonatomic, strong) UIButton *singleButton;
 @property (nonatomic, strong) UIButton *mulButton;
@@ -33,12 +35,9 @@ const static CGFloat min_height = 5;
 @property (nonatomic, strong) UILabel *sensitivityLabel;
 @property (nonatomic, strong) UISlider *sensitivitySlider;
 @property (nonatomic, strong) FrequencyView *frequencyView;
-
 @property (nonatomic, assign) BOOL flag;
 @end
-
 @implementation BLMusicViewController
-
 - (instancetype)init {
     if (self = [super init]) {
         self.title = @"musci";
@@ -48,33 +47,52 @@ const static CGFloat min_height = 5;
     }
     return self;
 }
-
 - (void)viewDidLoad {
     [super viewDidLoad];
+    VoiceHelper *voiceHelper = [VoiceHelper sharedInstance];
+    voiceHelper.delegate = self;
+    _showScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height-48)];
+    CGFloat content = _showScrollView.frame.size.height;
+    if (self.view.frame.size.height==480) {
+        content = 480;
+    }
+    _showScrollView.contentSize = CGSizeMake(self.view.frame.size.width, content);
+    [self.view addSubview:_showScrollView];
     [self configSelf];
     [self configSubview];
     [self configMusicListView];
-    VoiceHelper *voiceHelper = [VoiceHelper sharedInstance];
-    voiceHelper.delegate = self;
+    _isplayer = NO;
 }
 
 -(void)configMusicListView{
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MusicList" bundle:[NSBundle mainBundle]];
     MusicListViewController *listViewController = [storyboard instantiateViewControllerWithIdentifier:@"musicList"];
-//    UINavigationController *rootnavigation = [[UINavigationController alloc]initWithRootViewController:listViewController];
-    [self.view addSubview:listViewController.view];
+    [_showScrollView addSubview:listViewController.view];
     listViewController.delegate = self;
     [self addChildViewController:listViewController];
     listViewController.view.backgroundColor = [UIColor clearColor];
-    [listViewController.view mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.right.equalTo(self.view);
-        make.bottom.equalTo(self.frequencyView.mas_top);
-        make.top.equalTo(self.sensitivitySlider.mas_bottom).offset(10);
-    }];
+    listViewController.view.frame = CGRectMake(0, self.sensitivitySlider.frame.origin.y+30, self.view.frame.size.width, 100);
 }
 -(void)peakValue:(double)value{
-    [self volumeDidChanged:value];
+    NSInteger temp = (NSInteger)((value * _element_height) * 1.5);
+    _frequencyView.volume = temp;
+    //异步发送。
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSData *sendData;
+        if (_flag) {
+            sendData = [[CMDModel sharedInstance] singleMusicCMD:value];
+        }
+        else {
+            sendData = [[CMDModel sharedInstance] musicCMD:value];
+        }
+        [[BlueServerManager sharedInstance] sendData:sendData];
+    });
 }
+
+-(void)playerMusic:(BOOL)isplayer{
+    _isplayer = isplayer;
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
@@ -108,7 +126,7 @@ const static CGFloat min_height = 5;
 }
 
 - (void)sliderValueChanged: (UISlider *)sender {
-    //_element_height = sender.value;
+//    _element_height = sender.value;
     [CMDModel sharedInstance].sentivity =  1.0 / sender.value;
 }
 
@@ -143,12 +161,10 @@ const static CGFloat min_height = 5;
 }
 
 #pragma mark - VoiceHelperDelegate
-- (void)volumeDidChanged:(double)volume {
-   
-    NSInteger temp = (NSInteger)((volume * _element_height) * 1.5);
-    _frequencyView.volume = temp;
-    //异步发送。
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+- (void)volumeDidChanged:(double)volume{
+    if (!_isplayer) {
+        NSInteger temp = (NSInteger)((volume * _element_height) * 1.5);
+        _frequencyView.volume = temp;
         NSData *sendData;
         if (_flag) {
             sendData = [[CMDModel sharedInstance] singleMusicCMD:volume];
@@ -157,15 +173,15 @@ const static CGFloat min_height = 5;
             sendData = [[CMDModel sharedInstance] musicCMD:volume];
         }
         [[BlueServerManager sharedInstance] sendData:sendData];
-    });
+    }
 }
 
 #pragma mark - private
 - (void)configSelf {
     //self.view.backgroundColor = [UIColor colorWithRed:1.0 / 255 green:1.0 / 255 blue:51.0 / 255 alpha:0.9];
-    UIImageView *backImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    UIImageView *backImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, _showScrollView.contentSize.height)];
     backImageView.image = [UIImage imageNamed:@"backgroud.jpg"];
-    [self.view insertSubview:backImageView atIndex:0];
+    [_showScrollView insertSubview:backImageView atIndex:0];
     self.flag = NO;
     _element_height = 240;
     
@@ -173,13 +189,17 @@ const static CGFloat min_height = 5;
 }
 
 - (void)configSubview {
-    [self.view addSubview:self.singleButton];
-    [self.view addSubview:self.mulButton];
+    [_showScrollView addSubview:self.singleButton];
+    [_showScrollView addSubview:self.mulButton];
     //[self.view addSubview:self.singleLabel];
     //[self.view addSubview:self.mulLabel];
-    [self.view addSubview:self.sensitivityLabel];
-    [self.view addSubview:self.sensitivitySlider];
-    [self.view addSubview:self.frequencyView];
+    [_showScrollView addSubview:self.sensitivityLabel];
+    [_showScrollView addSubview:self.sensitivitySlider];
+    
+    CGRect frame = self.frequencyView.frame;
+    frame.origin.y = _showScrollView.contentSize.height-self.frequencyView.frame.size.height;
+    self.frequencyView.frame = frame;
+    [_showScrollView addSubview:self.frequencyView];
 }
 
 #pragma mark - getter
@@ -275,20 +295,22 @@ const static CGFloat min_height = 5;
         _sensitivitySlider.minimumValue = min_height;
         _sensitivitySlider.maximumValue = max_height;
         _sensitivitySlider.value = 0.5 * (min_height + max_height);
+        if (ISTOTAKEEFFECT) {
+            _sensitivitySlider.minimumTrackTintColor = THETIMECOLOR;
+        }
         //_element_height = _sensitivitySlider.value;
+        
     }
     return _sensitivitySlider;
 }
-
-- (FrequencyView *)frequencyView {
+-(FrequencyView *)frequencyView {
     if (!_frequencyView) {
         _frequencyView = [FrequencyView new];
     }
     return _frequencyView;
 }
-
 #pragma mark - setter
-- (void)setFlag:(BOOL)flag {
+- (void)setFlag:(BOOL)flag{
     _flag = flag;
     if (flag) {
         [self.singleButton setBackgroundImage:[UIImage imageNamed:@"selected.png"] forState:UIControlStateNormal];

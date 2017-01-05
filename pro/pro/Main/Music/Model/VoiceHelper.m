@@ -29,6 +29,7 @@ static VoiceHelper *_instance;
     return _instance;
 }
 
+
 - (instancetype)init {
     if (self = [super init]) {
         [self configSelf];
@@ -47,7 +48,6 @@ static VoiceHelper *_instance;
     //float height = result * (arc4random() % max_height);
     [_delegate volumeDidChanged:result];
     //NSLog(@"result = %f",result);
-                        
 }
 
 - (void)pause {

@@ -11,7 +11,7 @@
 #import "BlueServerManager.h"
 #import "CMDModel.h"
 #import "EFCircularSlider.h"
-
+#import "MBProgressHUD.h"
 #import <CoreBluetooth/CoreBluetooth.h>
 
 
@@ -41,6 +41,8 @@ const static CGFloat columnMargin = 20;
     NSData *_currentData;
     
     NSArray<CBPeripheral *> *_peripherals;
+    UIScrollView *_showScrollView;
+
 //    UIButton *_rightButton;
 //    UILabel *_titleLabel;
     BOOL _on;
@@ -88,12 +90,18 @@ const static CGFloat columnMargin = 20;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _showScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height-48)];
+    CGFloat content = _showScrollView.frame.size.height;
+    if (self.view.frame.size.height==480) {
+        content = 500;
+    }
+    _showScrollView.contentSize = CGSizeMake(self.view.frame.size.width, content);
+    [self.view addSubview:_showScrollView];
+    
     [self configSelf];
     [self configSubviews];
     _timer = [NSTimer scheduledTimerWithTimeInterval:8.0f target:self selector:@selector(delayMethod) userInfo:nil repeats:NO];
 }
-
-
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_timer invalidate];
@@ -105,6 +113,7 @@ const static CGFloat columnMargin = 20;
     if(_currentData) {
         [_manager sendData:_currentData];
     }
+    [_manager startScan];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -146,7 +155,7 @@ static UIAlertController *alert;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [self connectionBlooteeOfindex:indexPath.row];
 }
--(void)connectionBlooteeOfindex:(NSInteger)index{
+-(void)connectionBlooteeOfindex:(NSInteger )index{
     _timer2 = [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(delayMethod2) userInfo:nil repeats:NO];
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"title", nil) message:NSLocalizedString(@"blue", nil) preferredStyle:UIAlertControllerStyleAlert];
     [self presentViewController:alert animated:YES completion:nil];
@@ -166,7 +175,6 @@ static UIAlertController *alert;
         NSString *name = [NSString stringWithFormat:@"%@#%@",obj.name,uuidString];
         [temp addObject:name];
         //}
-        
     }];
     _peripherals = peripherals;
     self.dataSource = [temp copy];
@@ -365,26 +373,32 @@ static UIAlertController *alert;
     _on = !_on;
     [_powerButton setBackgroundImage:[UIImage imageNamed:name] forState:UIControlStateNormal];
     [[BlueServerManager sharedInstance] sendData:sendData];
-    
 }
-
-
-- (void)clickBackButton: (UIButton *)sender {
-    UIAlertController *Action = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleAlert];
-    for (int i = 0; i<[self.dataSource count]; i++) {
-            UIAlertAction *action_1 = [UIAlertAction actionWithTitle:self.dataSource[i] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                [self connectionBlooteeOfindex:i];
-            }];
+- (void)clickBackButton: (UIButton *)sender{
+    /*
+    [_manager disconnectPeripheral];
+    [self showMiddleHint:@"搜索中..." WithLoading:YES];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self showDissMiss];
+        UIAlertController *Action = [UIAlertController alertControllerWithTitle:nil message:@"蓝牙列表" preferredStyle:UIAlertControllerStyleAlert];
+        for (int i = 0; i<[_peripherals count]; i++){
+            CBPeripheral *Peripheral = _peripherals[i];
+            if (Peripheral.name) {
+                UIAlertAction *action_1 = [UIAlertAction actionWithTitle:Peripheral.name style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    [self connectionBlooteeOfindex:Peripheral];
+                }];
+                [Action addAction:action_1];
+            }
+        }
+        if ([self.dataSource count]==0) {
+            UIAlertAction *action_1 = [UIAlertAction actionWithTitle:@"未发现可用的蓝牙设备" style:UIAlertActionStyleDefault handler:nil];
             [Action addAction:action_1];
-    }
-    if ([self.dataSource count]==0) {
-        UIAlertAction *action_1 = [UIAlertAction actionWithTitle:@"未发现可用的蓝牙设备" style:UIAlertActionStyleDefault handler:nil];
-        [Action addAction:action_1];
-    }
-    UIAlertAction *action_2 = [UIAlertAction actionWithTitle:@"关闭" style:UIAlertActionStyleDestructive handler:nil];
-    [Action addAction:action_2];
-    [self presentViewController:Action animated:YES completion:nil];
-//    self.isShow = !_isShow;
+        }
+        UIAlertAction *action_2 = [UIAlertAction actionWithTitle:@"关闭" style:UIAlertActionStyleDestructive handler:nil];
+        [Action addAction:action_2];
+        [self presentViewController:Action animated:YES completion:nil];
+    });*/
+    self.isShow = !_isShow;
 }
 
 #pragma mark - notification
@@ -398,9 +412,9 @@ static UIAlertController *alert;
 }
 #pragma mark - private
 - (void) configSelf {
-    UIImageView *backImageView = [[UIImageView alloc] initWithFrame:self.view.bounds];
+    UIImageView *backImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, _showScrollView.contentSize.height)];
     backImageView.image = [UIImage imageNamed:@"backgroud.jpg"];
-    [self.view insertSubview:backImageView atIndex:0];
+    [_showScrollView insertSubview:backImageView atIndex:0];
     _backColors = @[@"red_off.png", @"blue_off.png", @"green_off.png", @"pick_off.png", @"yellow_off.png", @"lowblue_off.png", @"white_off.png"];
     _selectedBackColors = @[@"red_on.png", @"blue_on.png", @"green_on.png", @"pick_on.png", @"yellow_on.png", @"lowblue_on.png", @"white_on.png"];
     _btnTittles = @[@"频闪",@"三色",@"七色"];
@@ -428,46 +442,40 @@ static UIAlertController *alert;
     frame.origin.x = - CGRectGetWidth(frame);
     [UIView animateWithDuration:0.8  animations:^{
         _sliderTableView.frame = frame;
-        
     } completion:^(BOOL finished) {
         //
     }];
-    
 }
 
 - (void) configSubviews {
     
-    __weak typeof(self) weakSelf = self;
     [self.colorButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        __strong typeof(self) strongSelf = weakSelf;
-        [strongSelf.view addSubview:obj];
+        [_showScrollView addSubview:obj];
     }];
-    [self.view addSubview:self.lightSlider];
-    [self.view addSubview:self.frequencySlider];
+    [_showScrollView addSubview:self.lightSlider];
+    [_showScrollView addSubview:self.frequencySlider];
     [self.flickerButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        __strong typeof(self) strongSelf = weakSelf;
-        [strongSelf.view addSubview:obj];
+        [_showScrollView addSubview:obj];
     }];
     [self.breatheButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        __strong typeof(self) strongSelf = weakSelf;
-        [strongSelf.view addSubview:obj];
+        [_showScrollView addSubview:obj];
     }];
-    [self.view addSubview:self.circularSlider];
-    [self.view insertSubview:self.imageView belowSubview:_circularSlider];
-    [self.view insertSubview:self.indictorView belowSubview:_circularSlider];
+    [_showScrollView addSubview:self.circularSlider];
+    [_showScrollView insertSubview:self.imageView belowSubview:_circularSlider];
+    [_showScrollView insertSubview:self.indictorView belowSubview:_circularSlider];
     
     
     
-    [self.view addSubview:self.lightLabel];
-    [self.view addSubview:self.frequenceLabel];
-    [self.view addSubview:self.lineView];
-    [self.view addSubview:self.powerButton];
-    [self.view addSubview:self.titleLabel];
-    [self.view addSubview:self.backButton];
+    [_showScrollView addSubview:self.lightLabel];
+    [_showScrollView addSubview:self.frequenceLabel];
+    [_showScrollView addSubview:self.lineView];
+    [_showScrollView addSubview:self.powerButton];
+    [_showScrollView addSubview:self.titleLabel];
+    [_showScrollView addSubview:self.backButton];
     
-//    [self.view addSubview:self.sliderTableView];
+    [_showScrollView addSubview:self.sliderTableView];
     _sliderTableView.tag = 1000;
-    [self.view insertSubview:self.maskTableView belowSubview:_sliderTableView];
+    [_showScrollView insertSubview:self.maskTableView belowSubview:_sliderTableView];
     
     CGRect frame = _flickerButtons[0].frame;
     frame.origin.x = CGRectGetMinX(_flickerButtons[1].frame) - CGRectGetWidth(frame) + 0.0266667 * SCREEN_WIDTH;
@@ -491,10 +499,10 @@ static UIAlertController *alert;
     
     
     [self.powerButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(@(-15));
+        make.right.equalTo(self.view.mas_right).offset(-15);
         make.width.equalTo(@60);
         make.height.equalTo(@26);
-        make.centerY.equalTo(self.backButton);
+        make.top.equalTo(@60);
     }];
     
 }
@@ -534,6 +542,9 @@ static UIAlertController *alert;
         frame.origin.x = CGRectGetMaxX(self.lightLabel.frame) + columnMargin;
         frame.size.width = SCREEN_WIDTH - CGRectGetMinX(frame) - columnMargin;
         frame.size.height = 20;
+        if (ISTOTAKEEFFECT) {
+            _lightSlider.minimumTrackTintColor = THETIMECOLOR;
+        }
         frame.origin.y = CGRectGetMaxY(self.circularSlider.frame) + SCREEN_HEIGHT * 0.045;
         _lightSlider.frame = frame;
         _lightSlider.value = 1;
@@ -553,6 +564,9 @@ static UIAlertController *alert;
         _frequencySlider.minimumValue = 0;
         _frequencySlider.frame = frame;
         _frequencySlider.value = 0;
+        if (ISTOTAKEEFFECT) {
+            _frequencySlider.minimumTrackTintColor = THETIMECOLOR;
+        }
         [_frequencySlider addTarget:self action:@selector(frequencyValueChanged:) forControlEvents:UIControlEventValueChanged];
     }
     return _frequencySlider;
@@ -648,6 +662,9 @@ static UIAlertController *alert;
         CGPoint center = _circularSlider.center;
         center.x = self.view.center.x;
         _circularSlider.center = center;
+        if (ISTOTAKEEFFECT) {
+            _circularSlider.handleColor = THETIMECOLOR;
+        }
          [_circularSlider addTarget:self action:@selector(circularSlidervalueChanged:) forControlEvents:UIControlEventValueChanged];
         _circularSlider.handleType = bigCircle;
         _circularSlider.minimumValue = 0;
@@ -766,7 +783,14 @@ static UIAlertController *alert;
         _backButton = [UIButton new];
         CGRect frame = CGRectMake(15, 54, 60, 26);
         _backButton.frame = frame;
-        [_backButton setBackgroundImage:[UIImage imageNamed:@"backto_off"] forState:UIControlStateNormal];
+        
+        UIImage *img = [UIImage imageNamed:@"backto_off"];
+        if (ISTOTAKEEFFECT) {
+            _backButton.tintColor = THETIMECOLOR;
+            img = [img imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        }
+        [_backButton setBackgroundImage:img forState:UIControlStateNormal];
+        
         [_backButton addTarget:self action:@selector(clickBackButton:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _backButton;
@@ -889,4 +913,30 @@ static UIAlertController *alert;
     [_manager disconnectPeripheral];
     //_manager = nil;
 }
+
+
+- (void)showMiddleHint:(NSString *)hint WithLoading:(BOOL)loading {
+    UIView *view = [[UIApplication sharedApplication].delegate window];
+    MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:view animated:YES];
+    hud.userInteractionEnabled = NO;
+    hud.animationType = MBProgressHUDAnimationZoom;
+    if (loading) {
+        hud.animationType = MBProgressHUDAnimationZoom;
+    }
+
+    hud.label.text = hint;
+    hud.label.font = [UIFont systemFontOfSize:15];
+    hud.margin = 10.f;
+    hud.offset = CGPointMake(hud.offset.x, 0);
+    hud.removeFromSuperViewOnHide = YES;
+}
+
+-(void)showDissMiss{
+    UIView *view = [[UIApplication sharedApplication].delegate window];
+    [MBProgressHUD hideHUDForView:view animated:YES];
+}
+
+
+
+
 @end

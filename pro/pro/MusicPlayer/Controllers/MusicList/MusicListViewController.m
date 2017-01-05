@@ -87,10 +87,8 @@
         Entity.fileName = @"1770059653_2050944_l";
         Entity.artistName = @"三輪学";
         [self.musicEntities addObject:Entity];
-    
     }
-    
-    
+
     [self.tableView reloadData];
 }
 
@@ -108,6 +106,9 @@
        _musicDurationTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1 target: self selector: @selector(levelTimerCallback:) userInfo: nil repeats: YES];
         [myRunLoop addTimer:_musicDurationTimer forMode:NSRunLoopCommonModes];
         [self showMiddleHint:@"播放音乐"];
+        if ([self.delegate respondsToSelector:@selector(playerMusic:)]) {
+            [self.delegate playerMusic:YES];
+        }
     }
     else{
         [_audioPlayer stop];
@@ -117,6 +118,9 @@
             [self.delegate peakValue:0.0f];
         }
         [self showMiddleHint:@"音乐停止"];
+        if ([self.delegate respondsToSelector:@selector(playerMusic:)]) {
+            [self.delegate playerMusic:NO];
+        }
     }
   
 }
@@ -192,12 +196,12 @@
      MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:view animated:YES];
      hud.userInteractionEnabled = NO;
      hud.mode = MBProgressHUDModeText;
-     hud.labelText = hint;
-     hud.labelFont = [UIFont systemFontOfSize:15];
+     hud.label.text = hint;
+     hud.label.font = [UIFont systemFontOfSize:15];
      hud.margin = 10.f;
-     hud.yOffset = 0;
+     hud.offset = CGPointMake(hud.offset.x, 0);
      hud.removeFromSuperViewOnHide = YES;
-     [hud hide:YES afterDelay:2];
+    [hud hideAnimated:YES afterDelay:2];
 }
 
 @end

@@ -23,7 +23,7 @@ static NSString *const name = @"SH-HC-08";
 }
 @property (nonatomic, strong) CBCentralManager *manager;
 @property (nonatomic, strong) NSMutableArray<CBPeripheral *> *peripherals;
-@property (nonatomic, strong) CBPeripheral *peripheral;
+@property (nonatomic, copy) CBPeripheral *peripheral;
 @property (nonatomic, strong) CBCharacteristic *characteristic;
 @end
 
@@ -54,9 +54,13 @@ static NSString *const name = @"SH-HC-08";
 //    if (!([peripheral.name isEqualToString:name])) {
 ////        [UIAlertController alertControllerWithTitle:@"tip" message:@"此设备不匹配" preferredStyle:UIAlertControllerStyleAlert];
 //    }
-       _peripheral = peripheral;
+       _peripheral = [peripheral copy];
         _peripheral.delegate = self;
-        [self connect:peripheral];
+//        [self connect:peripheral];
+    [_manager connectPeripheral:_peripheral options:nil];
+    [_peripheral readRSSI];
+
+
 }
 
 - (void)disconnectPeripheral {
@@ -96,6 +100,8 @@ static NSString *const name = @"SH-HC-08";
 }
 
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
+    
+    NSLog(@"didDiscoverPeripheral开始连接");
     
     if (!peripheral) {
         return;
@@ -137,7 +143,10 @@ static NSString *const name = @"SH-HC-08";
 //    });
     
 }
-
+- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error{
+    //此时连接发生错误
+    NSLog(@"connected periphheral failed");
+}
 - (void)sendQueryData: (NSData *)data {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self sendData1:data];
@@ -170,6 +179,8 @@ static NSString *const name = @"SH-HC-08";
 
 #pragma mark - CBPeripheralDelegate
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
+    
+    NSLog(@"didDiscoverServices");
     
     if (peripheral != _peripheral) {
         return;
@@ -269,9 +280,7 @@ static NSString *const name = @"SH-HC-08";
 
 
 #pragma mark - private
-- (void) connect: (CBPeripheral *)periepheral {
-    [_manager connectPeripheral:periepheral options:nil];
-}
+
 
 - (BOOL)isContain: (CBPeripheral *)peripheral {
     for (CBPeripheral *obj in self.peripherals) {

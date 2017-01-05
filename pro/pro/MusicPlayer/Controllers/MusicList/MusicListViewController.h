@@ -10,6 +10,7 @@
 
 @protocol MusicListViewControllerDelegate <NSObject>
 -(void)peakValue:(double)value;
+-(void)playerMusic:(BOOL)isplayer;
 @end
 
 @interface MusicListViewController : UITableViewController

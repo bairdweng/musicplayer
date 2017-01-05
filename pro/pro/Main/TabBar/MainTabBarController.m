@@ -29,6 +29,9 @@
     view.backgroundColor = [UIColor colorWithRed:32.0 / 255 green:37.0 / 255 blue:42.0 / 255 alpha:1.0];
     [self.tabBar insertSubview:view atIndex:0];
     [self configSelf];
+    if (ISTOTAKEEFFECT) {
+        self.tabBar.tintColor = THETIMECOLOR;
+    }
 }
 
 #pragma mark - private
