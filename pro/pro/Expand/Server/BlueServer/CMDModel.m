@@ -494,9 +494,6 @@ static CMDModel *_instance;
         _sentivity = 0.08;
     }
 }
-
-
-
 @end
 
 

@@ -11,26 +11,12 @@
 
 @class BlueServerManager;
 @class CBPeripheral;
-@protocol BlueServerManagerDelegate <NSObject>
-@optional
-- (void)blueServerManager: (BlueServerManager *)manager didDiscoverPeripherals: (NSArray <CBPeripheral *> *)peripherals;
-
-- (void)blueServerManager: (BlueServerManager *)manager didConnectedPeripheral: (CBPeripheral *)peripheral;
-- (void)blueServerManager: (BlueServerManager *)manager didSendQueryData: (Byte[])bytes;
-
-@end
 
 @interface BlueServerManager : NSObject
-@property (nonatomic, weak) id<BlueServerManagerDelegate> delegate;
 @property(nonatomic,strong)CBPeripheral *currentPeripheral;
 @property (nonatomic, strong)CBCharacteristic *currentcharacteristic;
-
-
+@property(nonatomic,assign)BOOL isSender;//是否发生请求。
 + (instancetype)sharedInstance;
-- (void)startScan;
-- (void)stopScan;
-- (void)connectPeripheral: (CBPeripheral *)peripheral;
-- (void)disconnectPeripheral;
 - (void)sendData: (NSData *)data;
-- (void)sendQueryData: (NSData *)data;
+- (void)sendQueryData:(NSData *)data;
 @end

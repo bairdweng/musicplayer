@@ -381,6 +381,9 @@
 //characteristic.isNotifying 状态改变
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     
+    
+    NSLog(@"执行了");
+    
     [[NSNotificationCenter defaultCenter]postNotificationName:BabyNotificationAtDidUpdateNotificationStateForCharacteristic object:@{@"characteristic":characteristic,@"error":error?error:@""}];
     
     BabyLog(@">>>didUpdateNotificationStateForCharacteristic");

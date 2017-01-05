@@ -14,76 +14,46 @@
 #import "MBProgressHUD.h"
 #import <CoreBluetooth/CoreBluetooth.h>
 #import "BabyBluetooth.h"
-
-
 #define COLOR_BTN_SIZE CGSizeMake(40, 40)
 #define MODE_BTN_SIZE CGSizeMake(38,38)
 #define SLIDER_IMAGE_SIZE CGSizeMake(90, 35)
 #define SLIDER_TABLE_SIZE CGSizeMake(240, 480)
-
 static NSString *const cellId = @"cellId";
-
-
-
 //const static CGFloat originY = 360;
 //const static CGFloat rowMargin = 20;
 const static CGFloat columnMargin = 20;
-
-
-
-@interface ColorViewController ()<UITableViewDelegate, UITableViewDataSource, BlueServerManagerDelegate> {
+@interface ColorViewController ()<UITableViewDelegate, UITableViewDataSource> {
     NSArray<NSString *> *_backColors;
     NSArray<NSString *> *_selectedBackColors;
     NSArray<NSString *> *_btnTittles;
     NSArray<UIImage *> *_backImage;
     NSArray<UIColor *> *_colors;
-    NSTimer *_timer;
-    NSTimer *_timer2;
     NSData *_currentData;
-    
     NSArray<CBPeripheral *> *_peripherals;
     UIScrollView *_showScrollView;
-    
-//    UIButton *_rightButton;
-//    UILabel *_titleLabel;
-    
     BOOL _on;
 }
 @property (nonatomic, strong) NSArray<UIButton *> *colorButtons;
-
 @property (nonatomic, strong) UISlider *lightSlider;
-//@property (nonatomic, strong) UIImageView *lightImageView;
 @property (nonatomic, strong) UILabel *lightLabel;
-
 @property (nonatomic, strong) UISlider *frequencySlider;
-//@property (nonatomic, strong) UIImageView *frequenceImageView;
 @property (nonatomic, strong) UILabel *frequenceLabel;
-
 @property (nonatomic, strong) NSArray<UIButton *> *flickerButtons;
 @property (nonatomic, strong) NSArray<UIButton *> *breatheButtons;
-
 @property (nonatomic, strong) EFCircularSlider *circularSlider;
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UIView *indictorView;
-
 @property (nonatomic, strong) UIView *lineView;
-
 @property (nonatomic, strong) UIButton *powerButton;
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UIButton *backButton;
 @property (nonatomic, assign) int mode;
-
 @property (nonatomic, strong) UITableView *sliderTableView;
 @property (nonatomic, strong) NSArray<NSString *> *dataSource;
-
 @property (nonatomic, strong) NSArray<CBPeripheral *> *Peripherals;
-
-@property (nonatomic, strong) BlueServerManager *manager;
 @property (nonatomic, assign) BOOL isShow;
 @property (nonatomic, strong) UIView *maskTableView;
-
 @end
-
 @implementation ColorViewController
 - (instancetype)init {
     if (self = [super init]) {
@@ -92,17 +62,23 @@ const static CGFloat columnMargin = 20;
     }
     return self;
 }
-
-
-
 /**
  蓝牙配置
  */
 -(void)bluetoothConfig{
+    [self ShowStartscanForPeripherals];
     [self babyDelegate];
     //设置委托后直接可以使用，无需等待CBCentralManagerStatePoweredOn状态
+}
+
+
+-(void)ShowStartscanForPeripherals{
+    
+//    [BabyBluetooth shareBabyBluetooth].having(_peripherals).connectToPeripherals().discoverServices().discoverCharacteristics()
+//    .readValueForCharacteristic().discoverDescriptorsForCharacteristic().readValueForDescriptors().begin();
     [BabyBluetooth shareBabyBluetooth].scanForPeripherals().begin();
 }
+
 - (BOOL)isContain:(CBPeripheral *)peripheral withperipherals:(NSMutableArray *)peripherals{
     for (CBPeripheral *obj in peripherals) {
         if ([obj.identifier.UUIDString isEqualToString:peripheral.identifier.UUIDString]) {
@@ -128,11 +104,22 @@ const static CGFloat columnMargin = 20;
         self.Peripherals = peripherals;
         [self.sliderTableView reloadData];
     }];
+    
+    
+//    [[BabyBluetooth shareBabyBluetooth] setFilterOnDiscoverPeripherals:^BOOL(NSString *peripheralName, NSDictionary *advertisementData, NSNumber *RSSI) {
+//        if ([peripheralName isEqualToString:@"RGB-BLUE_T2"]) {
+//            return YES;
+//        }
+//        return NO;
+//    }];
+//    
+    
     [[BabyBluetooth shareBabyBluetooth]setBlockOnFailToConnect:^(CBCentralManager *central, CBPeripheral *peripheral, NSError *error) {
         [self showMiddleHint:@"连接失败" WithLoading:NO];
         [[BabyBluetooth shareBabyBluetooth]cancelScan];
+        [self ConnectSucessError];
     }];
-    [[BabyBluetooth shareBabyBluetooth]setBlockOnConnected:^(CBCentralManager *central, CBPeripheral *peripheral) {
+    [[BabyBluetooth shareBabyBluetooth]setBlockOnConnected:^(CBCentralManager *central, CBPeripheral *peripheral){
         self.isShow = NO;
         [self showMiddleHint:@"连接成功" WithLoading:NO];
         [self ConnectSucessDeal];
@@ -141,19 +128,43 @@ const static CGFloat columnMargin = 20;
         [self showMiddleHint:@"蓝牙已断开" WithLoading:NO];
         [self ConnectSucessError];
     }];
-    [[BabyBluetooth shareBabyBluetooth]setBlockOnDiscoverCharacteristics:^(CBPeripheral *peripheral, CBService *service, NSError *error) {
-        NSLog(@"CBService=============%@",service.UUID);
-    }];
-    
-    [[BabyBluetooth shareBabyBluetooth] setBlockOnDiscoverServicesAtChannel:@"test" block:^(CBPeripheral *peripheral, NSError *error) {
-        for (CBService *s in peripheral.services) {
-            ///插入section到tableview
-            
-            NSLog(@"s==========%@",s);
+    //获取最新的值
+    [[BabyBluetooth shareBabyBluetooth]setBlockOnReadValueForCharacteristic:^(CBPeripheral *peripheral, CBCharacteristic *characteristic, NSError *error){
+        if (!error){
+            if ([characteristic.UUID.UUIDString isEqualToString:@"FFE1"]) {
+                [BlueServerManager sharedInstance].currentcharacteristic = characteristic;
+                [[BlueServerManager sharedInstance].currentPeripheral setNotifyValue:YES forCharacteristic:characteristic];
+                if ([BlueServerManager sharedInstance].isSender) {
+                    NSData *sendData = [[CMDModel sharedInstance] queryCMD];
+                    [[BlueServerManager sharedInstance] sendQueryData:sendData];
+                }
+            }
         }
-        
+        else{
+            NSLog(@"shareBabyBluetooth错误");
+        }
+    }];
+    //订阅改变的时候
+    [[BabyBluetooth shareBabyBluetooth]setBlockOnDidUpdateNotificationStateForCharacteristic:^(CBCharacteristic *characteristic, NSError *error) {
+        if (error){            
+            NSLog(@"订阅改变的时候错误");
+            return;
+        }
+        NSData *data = characteristic.value;
+        Byte result[20] = {0x00};
+        [data getBytes:&result length:data.length];
+        if (data.length == 6 && !(result[0] == 0xea && result[1] == 0x0a)){
+            [self didSendQueryData:result];
+        }
     }];
     
+    [[BabyBluetooth shareBabyBluetooth]setBlockOnDidWriteValueForDescriptor:^(CBDescriptor *descriptor, NSError *error) {
+        if (error){
+            
+            [self showMiddleHint:error.description WithLoading:YES];
+            
+        }
+    }];
     
     
 }
@@ -162,24 +173,82 @@ const static CGFloat columnMargin = 20;
     self.isShow = NO;
     _titleLabel.hidden = YES;
     [_backButton setBackgroundImage:[UIImage imageNamed:@"backto"] forState:UIControlStateNormal];
-    NSData *sendData = [[CMDModel sharedInstance] queryCMD];
-    NSLog(@"query");
-    [[BlueServerManager sharedInstance] sendQueryData:sendData];
+    [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:isConnectted];
 }
 //连接失败的处理。
 -(void)ConnectSucessError{
     _titleLabel.hidden = NO;
     [_backButton setBackgroundImage:[UIImage imageNamed:@"backto_off.png"] forState:UIControlStateNormal];
+    [[NSUserDefaults standardUserDefaults] setObject:@NO forKey:isConnectted];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+//获取数据的处理
+
+-(void)didSendQueryData:(Byte [])bytes{
+//    NSLog(@"bytes============================%s",bytes);
+//    for(int i = 0; i < 6; i++) {
+//        NSLog(@"result: %d", bytes[i]);
+//    }
+    
+    if(bytes[0] == 1) {
+        self.mode = 0;
+    }
+    else if (bytes[0] == 3) {
+        self.mode = 1;
+    }
+    else if (bytes[0] == 5) {
+        self.mode = 2;
+    }
+    else if (bytes[0] == 8) {
+        self.mode = 3;
+    }
+    else {
+        return;
+    }
+    [BlueServerManager sharedInstance].isSender = NO;
+    int progess = 0;
+    if(bytes[1] == 255  && bytes[3] == 0) {
+        progess = bytes[2];
+    }
+    else if (bytes[2] == 255  && bytes[3] == 0) {
+        progess = 458 - bytes[1];
+    }
+    else if (bytes[1] == 0  && bytes[2] == 255) {
+        progess = 390 + bytes[3];
+    }
+    else if (bytes[1] == 0  && bytes[3] == 255) {
+        progess = 900 - bytes[2];
+    }
+    else if (bytes[2] == 0  && bytes[3] == 255) {
+        progess = 900 + bytes[1];
+    }
+    else if (bytes[1] == 255  && bytes[2] == 0) {
+        progess = 1410 - bytes[3];
+    }
+    
+    
+    self.circularSlider.currentValue = progess / 1422.0;
+    [self circularSlidervalueChanged:self.circularSlider];
+    // NSLog(@"%f",self.circularSlider.currentValue);
+    //self.circularSlider.currentValue = 1;
+    int angle = 0;
+    float value = self.circularSlider.currentValue;
+    if(value > 0 && value < 0.25) {
+        angle = - (int)(value * 360);
+    }
+    else {
+        angle = (int)(360 - value * 360);
+    }
+    [_circularSlider setPosition:angle];
+    
+    
+    self.lightSlider.value = bytes[4] / 100.0;
+    self.frequencySlider.value = bytes[5] / 10.0;
+    [[CMDModel sharedInstance] writeCMD:bytes];
 }
 
 
-
-
-
-
-
-
-- (void)viewDidLoad {
+-(void)viewDidLoad {
     [super viewDidLoad];
     _showScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height-48)];
     CGFloat content = _showScrollView.frame.size.height;
@@ -190,33 +259,25 @@ const static CGFloat columnMargin = 20;
     [self.view addSubview:_showScrollView];
     [self configSelf];
     [self configSubviews];
-    _timer = [NSTimer scheduledTimerWithTimeInterval:8.0f target:self selector:@selector(delayMethod) userInfo:nil repeats:NO];
     [self bluetoothConfig];
-    
 }
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [_timer invalidate];
-    [_timer2 invalidate];
 }
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     if(_currentData) {
-        [_manager sendData:_currentData];
+        [[BlueServerManager sharedInstance] sendData:_currentData];
     }
 }
-
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
     _currentData = [[CMDModel sharedInstance] getCuttentData];
 }
-
 #pragma mark - UITableViewDelegate, UITableViewDataSource
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     return self.Peripherals.count;
 }
-
 - (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
     if (!cell) {
@@ -241,156 +302,36 @@ const static CGFloat columnMargin = 20;
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return 60;
 }
-
-
-static UIAlertController *alert;
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     //连接蓝牙。
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     CBPeripheral *Peripheral = self.Peripherals[indexPath.row];
-    [BabyBluetooth shareBabyBluetooth].having(Peripheral).connectToPeripherals().begin();
-    for (CBService *Service in Peripheral.services){
-//        NSLog(@"s.characteristics=================%@",s.characteristics);
-//        [BlueServerManager sharedInstance].currentcharacteristic = Service.characteristics;
-
-    }
+    [BabyBluetooth shareBabyBluetooth].having(Peripheral).connectToPeripherals().discoverServices().discoverCharacteristics()
+    .readValueForCharacteristic().discoverDescriptorsForCharacteristic().readValueForDescriptors().begin();
     [BlueServerManager sharedInstance].currentPeripheral = Peripheral;
-
     [self showMiddleHint:@"正在连接" WithLoading:YES];
+    [BlueServerManager sharedInstance].isSender = YES;
 }
--(void)connectionBlooteeOfindex:(NSInteger )index{
-    _timer2 = [NSTimer scheduledTimerWithTimeInterval:5.0f target:self selector:@selector(delayMethod2) userInfo:nil repeats:NO];
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"title", nil) message:NSLocalizedString(@"blue", nil) preferredStyle:UIAlertControllerStyleAlert];
-    [self presentViewController:alert animated:YES completion:nil];
-    [_manager connectPeripheral:_peripherals[index]];
-}
-#pragma mark - BlueServerManagerDelegate
-- (void)blueServerManager:(BlueServerManager *)manager didDiscoverPeripherals:(NSArray<CBPeripheral *> *)peripherals {
-    if (!(peripherals && peripherals.count)) {
-        return;
-    }
-    NSMutableArray<NSString *> *temp = [NSMutableArray array];
-    [peripherals enumerateObjectsUsingBlock:^(CBPeripheral * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        //if ([obj.name isEqualToString:blueName]) {
-        [[NSUserDefaults standardUserDefaults] setObject:@YES forKey:isConnectted];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        NSString *uuidString = obj.identifier.UUIDString;
-        NSString *name = [NSString stringWithFormat:@"%@#%@",obj.name,uuidString];
-        [temp addObject:name];
-        //}
-    }];
-    _peripherals = peripherals;
-    self.dataSource = [temp copy];
-}
-
-
-
-
-
-
-
-- (void)blueServerManager:(BlueServerManager *)manager didConnectedPeripheral:(CBPeripheral *)peripheral {
-    //alert = nil;
-    //NSLog(@"...");
-    //[alert dismissViewControllerAnimated:YES completion:nil];
-    [self dismissViewControllerAnimated:YES completion:nil];
-    self.isShow = NO;
-    _titleLabel.hidden = YES;
-    [_backButton setBackgroundImage:[UIImage imageNamed:@"backto"] forState:UIControlStateNormal];
-    NSData *sendData = [[CMDModel sharedInstance] queryCMD];
-    NSLog(@"query");
-    [[BlueServerManager sharedInstance] sendQueryData:sendData];
-    
-}
-
-- (void)blueServerManager:(BlueServerManager *)manager didSendQueryData:(Byte [])bytes {
-    for(int i = 0; i < 6; i++) {
-        NSLog(@"result: %d", bytes[i]);
-    }
-    
-    if(bytes[0] == 1) {
-        self.mode = 0;
-    }
-    else if (bytes[0] == 3) {
-        self.mode = 1;
-    }
-    else if (bytes[0] == 5) {
-        self.mode = 2;
-    }
-    else if (bytes[0] == 8) {
-        self.mode = 3;
-    }
-    else {
-        return;
-    }
-    
-    int progess = 0;
-    if(bytes[1] == 255  && bytes[3] == 0) {
-        progess = bytes[2];
-    }
-    else if (bytes[2] == 255  && bytes[3] == 0) {
-        progess = 458 - bytes[1];
-    }
-    else if (bytes[1] == 0  && bytes[2] == 255) {
-        progess = 390 + bytes[3];
-    }
-    else if (bytes[1] == 0  && bytes[3] == 255) {
-        progess = 900 - bytes[2];
-    }
-    else if (bytes[2] == 0  && bytes[3] == 255) {
-        progess = 900 + bytes[1];
-    }
-    else if (bytes[1] == 255  && bytes[2] == 0) {
-        progess = 1410 - bytes[3];
-    }
-    
-    
-    self.circularSlider.currentValue = progess / 1422.0;
-    [self circularSlidervalueChanged:self.circularSlider];
-   // NSLog(@"%f",self.circularSlider.currentValue);
-    //self.circularSlider.currentValue = 1;
-    int angle = 0;
-    float value = self.circularSlider.currentValue;
-    if(value > 0 && value < 0.25) {
-        angle = - (int)(value * 360);
-    }
-    else {
-        angle = (int)(360 - value * 360);
-    }
-    [_circularSlider setPosition:angle];
-    
-    
-    self.lightSlider.value = bytes[4] / 100.0;
-    self.frequencySlider.value = bytes[5] / 10.0;
-    [[CMDModel sharedInstance] writeCMD:bytes];
-}
-
 
 #pragma mark - button action
 - (void)clickColorsButton: (UIButton *)sender {
     NSInteger index = sender.tag - 50;
-    
     [sender setBackgroundImage:[UIImage imageNamed:_selectedBackColors[index]] forState:UIControlStateNormal];
     [_colorButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if (index != idx) {
             [obj setBackgroundImage:[UIImage imageNamed:_backColors[idx]] forState:UIControlStateNormal];
         }
     }];
-    
     if (_mode != 0 && _mode != 2) {
         self.mode = 0;
     }
-    
     UIColor *color = _colors[index];
-    
     self.flickerButtons[1].backgroundColor = color;
     self.breatheButtons[1].backgroundColor = color;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"sigleColorChanged" object:nil userInfo:@{@"color": color}];
     NSData *sendData = [[CMDModel sharedInstance] singleColors][index];
     [[BlueServerManager sharedInstance] sendData:sendData];
-   
 }
-
 - (void)clickflickerButton: (UIButton *)sender {
     NSInteger index = sender.tag - 60;
     CMDModel *cmd = [CMDModel sharedInstance];
@@ -484,29 +425,6 @@ static UIAlertController *alert;
     [[BlueServerManager sharedInstance] sendData:sendData];
 }
 - (void)clickBackButton: (UIButton *)sender{
-    /*
-    [_manager disconnectPeripheral];
-    [self showMiddleHint:@"搜索中..." WithLoading:YES];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self showDissMiss];
-        UIAlertController *Action = [UIAlertController alertControllerWithTitle:nil message:@"蓝牙列表" preferredStyle:UIAlertControllerStyleAlert];
-        for (int i = 0; i<[_peripherals count]; i++){
-            CBPeripheral *Peripheral = _peripherals[i];
-            if (Peripheral.name) {
-                UIAlertAction *action_1 = [UIAlertAction actionWithTitle:Peripheral.name style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    [self connectionBlooteeOfindex:Peripheral];
-                }];
-                [Action addAction:action_1];
-            }
-        }
-        if ([self.dataSource count]==0) {
-            UIAlertAction *action_1 = [UIAlertAction actionWithTitle:@"未发现可用的蓝牙设备" style:UIAlertActionStyleDefault handler:nil];
-            [Action addAction:action_1];
-        }
-        UIAlertAction *action_2 = [UIAlertAction actionWithTitle:@"关闭" style:UIAlertActionStyleDestructive handler:nil];
-        [Action addAction:action_2];
-        [self presentViewController:Action animated:YES completion:nil];
-    });*/
     self.isShow = !_isShow;
 }
 #pragma mark - notification
@@ -534,15 +452,16 @@ static UIAlertController *alert;
 }
 - (void)sliderTableViewShow {
     //开始扫描
-    [BabyBluetooth shareBabyBluetooth].scanForPeripherals().begin();
+    [self ShowStartscanForPeripherals];
     [[BabyBluetooth shareBabyBluetooth]cancelAllPeripheralsConnection];
-    _manager = nil;
+    [BlueServerManager sharedInstance].currentcharacteristic = nil;
+    [BlueServerManager sharedInstance].currentPeripheral = nil;
+
     CGRect frame = self.sliderTableView.frame;
     frame.origin.x = 0;
     [UIView animateWithDuration:0.8 animations:^{
         _sliderTableView.frame = frame;
     } completion:^(BOOL finished) {
-//        [self.manager startScan];
     }];
 }
 - (void)sliderTableViewHidden {
@@ -553,6 +472,7 @@ static UIAlertController *alert;
     [UIView animateWithDuration:0.8  animations:^{
         _sliderTableView.frame = frame;
     } completion:^(BOOL finished) {
+        [self showDissMiss];
     }];
 }
 
@@ -591,8 +511,6 @@ static UIAlertController *alert;
     _breatheButtons[0].frame = frame;
     //self.mode = 0;
     self.isShow = YES;
-    [self.manager startScan];
-    
     //mas布局
     [self.backButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(@15);
@@ -906,11 +824,11 @@ static UIAlertController *alert;
 - (BlueServerManager *)manager {
     
     return nil;
-    if (!_manager) {
-        _manager = [BlueServerManager sharedInstance];
-        _manager.delegate = self;
-    }
-    return _manager;
+//    if (!_manager) {
+//        _manager = [BlueServerManager sharedInstance];
+//        _manager.delegate = self;
+//    }
+//    return _manager;
 }
 
 - (UIView *)maskTableView {
@@ -964,16 +882,12 @@ static UIAlertController *alert;
         [self.colorButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             [obj setBackgroundImage:[UIImage imageNamed:_backColors[idx]] forState:UIControlStateNormal];
         }];
-
     }
-    
 }
-
 - (void)setDataSource:(NSArray<NSString *> *)dataSource {
     _dataSource = dataSource;
     [self.sliderTableView reloadData];
 }
-
 - (void)setIsShow:(BOOL)isShow{
     _isShow = isShow;
     if (_isShow) {
@@ -995,17 +909,6 @@ static UIAlertController *alert;
         return;
     }
     self.isShow = NO;
-}
-
-- (void)delayMethod2 {
-    
-    if (_titleLabel.hidden) {
-        return;
-    }
-    self.isShow = NO;
-    [self dismissViewControllerAnimated:YES completion:nil];
-    [_manager disconnectPeripheral];
-    //_manager = nil;
 }
 - (void)showMiddleHint:(NSString *)hint WithLoading:(BOOL)loading {
     [self showDissMiss];

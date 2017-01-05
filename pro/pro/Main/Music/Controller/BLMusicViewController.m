@@ -91,12 +91,17 @@ const static CGFloat min_height = 5;
 
 -(void)playerMusic:(BOOL)isplayer{
     _isplayer = isplayer;
+    if (_isplayer) {
+        [[VoiceHelper sharedInstance]pause];
+    }
+    else{
+        [[VoiceHelper sharedInstance]record];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    
-    BOOL flag = [[[NSUserDefaults standardUserDefaults] objectForKey:isConnectted] boolValue];
+    BOOL flag = [[[NSUserDefaults standardUserDefaults]objectForKey:isConnectted] boolValue];
     if (!flag) {
         [[VoiceHelper sharedInstance] pause];
         _titleLabel.text = @"RGB Bluetooth(蓝牙未连接)";
@@ -106,11 +111,10 @@ const static CGFloat min_height = 5;
         [[VoiceHelper sharedInstance] record];
     }
 }
-
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    [[VoiceHelper sharedInstance] pause];
     [_listViewController musicPlayerStop];
+    [[VoiceHelper sharedInstance] pause];
     _isplayer = NO;
 }
 
@@ -176,7 +180,6 @@ const static CGFloat min_height = 5;
         [[BlueServerManager sharedInstance] sendData:sendData];
     }
 }
-
 #pragma mark - private
 - (void)configSelf {
     //self.view.backgroundColor = [UIColor colorWithRed:1.0 / 255 green:1.0 / 255 blue:51.0 / 255 alpha:0.9];
@@ -185,10 +188,7 @@ const static CGFloat min_height = 5;
     [_showScrollView insertSubview:backImageView atIndex:0];
     self.flag = NO;
     _element_height = 240;
-    
-    
 }
-
 - (void)configSubview {
     [_showScrollView addSubview:self.singleButton];
     [_showScrollView addSubview:self.mulButton];
@@ -196,7 +196,6 @@ const static CGFloat min_height = 5;
     //[self.view addSubview:self.mulLabel];
     [_showScrollView addSubview:self.sensitivityLabel];
     [_showScrollView addSubview:self.sensitivitySlider];
-    
     CGRect frame = self.frequencyView.frame;
     frame.origin.y = _showScrollView.contentSize.height-self.frequencyView.frame.size.height;
     self.frequencyView.frame = frame;

@@ -29,58 +29,28 @@ static VoiceHelper *_instance;
     return _instance;
 }
 
-
-- (instancetype)init {
-    if (self = [super init]) {
-        [self configSelf];
-    }
-    return self;
-}
-
 #pragma mark - call back
 - (void)levelTimerCallback:(NSTimer *)timer {
-    [_recorder updateMeters];
-    //float tmep = [_recorder averagePowerForChannel:0];
+    [self.recorder updateMeters];
     float temp = [_recorder peakPowerForChannel:0];
-    //NSLog(@"%f,%f",tmep,temp);
     //转化范围为0 － 1；
     double result = pow(10, (0.05 * temp));
-    //float height = result * (arc4random() % max_height);
     [_delegate volumeDidChanged:result];
-    //NSLog(@"result = %f",result);
 }
-
 - (void)pause {
     [self.recorder pause];
     [_timer invalidate];
 }
-
 - (void)record {
+    [self configSelf];
     [self.recorder record];
-    _timer = [NSTimer scheduledTimerWithTimeInterval: 0.06 target: self selector: @selector(levelTimerCallback:) userInfo: nil repeats: YES];
-    
+    _timer = [NSTimer scheduledTimerWithTimeInterval: 0.1 target: self selector: @selector(levelTimerCallback:) userInfo: nil repeats: YES];
 }
-
-
 #pragma mark - private
 - (void)configSelf {
-    //
-
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-    //[audioSession setCategory: AVAudioSessionCategoryAmbient error: nil];
     [audioSession setCategory: AVAudioSessionCategoryPlayAndRecord error: nil];
-    //
-//    [audioSession requestRecordPermission:^(BOOL granted) {
-//        if (granted) {
-//            [self.recorder record];
-//            _timer = [NSTimer scheduledTimerWithTimeInterval: 0.06 target: self selector: @selector(levelTimerCallback:) userInfo: nil repeats: YES];
-//        }
-//        else {
-//            NSLog(@"world");
-//        }
-//    }];
 }
-
 #pragma mark - getter
 - (AVAudioRecorder *)recorder {
     if (!_recorder) {

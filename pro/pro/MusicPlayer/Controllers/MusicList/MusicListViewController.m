@@ -27,6 +27,7 @@
 }
 -(void)musicPlayerStop{
     [_audioPlayer stop];
+    self.isplayer = NO;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -48,14 +49,12 @@
     MusicIndicator *indicator = [MusicIndicator sharedInstance];
     indicator.hidesWhenStopped = NO;
     indicator.tintColor = [UIColor redColor];
-    
     if (indicator.state != NAKPlaybackIndicatorViewStatePlaying) {
         indicator.state = NAKPlaybackIndicatorViewStatePlaying;
         indicator.state = NAKPlaybackIndicatorViewStateStopped;
     } else {
         indicator.state = NAKPlaybackIndicatorViewStatePlaying;
-    }
-    
+    }    
     [self.navigationController.navigationBar addSubview:indicator];
     
     UITapGestureRecognizer *tapInditator = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapIndicator)];
@@ -151,22 +150,8 @@
     MusicListCell *musicsCell = [self.tableView cellForRowAtIndexPath:indexPath];
     musicsCell.state = NAKPlaybackIndicatorViewStatePlaying;
 }
-
-- (void)updatePlaybackIndicatorOfCell:(MusicListCell *)cell {
-//    return;
-//    MusicEntity *music = cell.musicEntity;
-//    if (music.musicId == [[MusicViewController sharedInstance] currentPlayingMusic].musicId) {
-//        cell.state = NAKPlaybackIndicatorViewStateStopped;
-//        cell.state = [MusicIndicator sharedInstance].state;
-//    } else {
-//        cell.state = NAKPlaybackIndicatorViewStateStopped;
-//    }
-}
-
 - (void)updatePlaybackIndicatorOfVisisbleCells {
-    for (MusicListCell *cell in self.tableView.visibleCells) {
-        [self updatePlaybackIndicatorOfCell:cell];
-    }
+   
 }
 
 # pragma mark - Tableview datasource
@@ -183,17 +168,13 @@
     static NSString *musicListCell = @"musicListCell";
     MusicEntity *music = _musicEntities[indexPath.row];
     MusicListCell *cell = [tableView dequeueReusableCellWithIdentifier:musicListCell];
-//    cell.backgroundColor = [[UIColor blackColor]colorWithAlphaComponent:0.5f];
     cell.backgroundColor = [UIColor clearColor];
     cell.musicNumber = indexPath.row + 1;
     cell.musicEntity = music;
     cell.delegate = self;
-    [self updatePlaybackIndicatorOfCell:cell];
     return cell;
 }
-         
 # pragma mark - HUD
-         
 - (void)showMiddleHint:(NSString *)hint {
      UIView *view = [[UIApplication sharedApplication].delegate window];
      MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:view animated:YES];
