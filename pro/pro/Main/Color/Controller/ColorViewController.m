@@ -18,6 +18,7 @@
 #define MODE_BTN_SIZE CGSizeMake(38,38)
 #define SLIDER_IMAGE_SIZE CGSizeMake(90, 35)
 #define SLIDER_TABLE_SIZE CGSizeMake(240, 480)
+
 static NSString *const cellId = @"cellId";
 //const static CGFloat originY = 360;
 //const static CGFloat rowMargin = 20;
@@ -31,6 +32,9 @@ const static CGFloat columnMargin = 20;
     NSData *_currentData;
     NSArray<CBPeripheral *> *_peripherals;
     UIScrollView *_showScrollView;
+    CGFloat _JGValue;
+    int _templeIndex;
+    BOOL _isplus;
     BOOL _on;
 }
 @property (nonatomic, strong) NSArray<UIButton *> *colorButtons;
@@ -73,9 +77,6 @@ const static CGFloat columnMargin = 20;
 
 
 -(void)ShowStartscanForPeripherals{
-    
-//    [BabyBluetooth shareBabyBluetooth].having(_peripherals).connectToPeripherals().discoverServices().discoverCharacteristics()
-//    .readValueForCharacteristic().discoverDescriptorsForCharacteristic().readValueForDescriptors().begin();
     [BabyBluetooth shareBabyBluetooth].scanForPeripherals().begin();
 }
 
@@ -104,16 +105,6 @@ const static CGFloat columnMargin = 20;
         self.Peripherals = peripherals;
         [self.sliderTableView reloadData];
     }];
-    
-    
-//    [[BabyBluetooth shareBabyBluetooth] setFilterOnDiscoverPeripherals:^BOOL(NSString *peripheralName, NSDictionary *advertisementData, NSNumber *RSSI) {
-//        if ([peripheralName isEqualToString:@"RGB-BLUE_T2"]) {
-//            return YES;
-//        }
-//        return NO;
-//    }];
-//    
-    
     [[BabyBluetooth shareBabyBluetooth]setBlockOnFailToConnect:^(CBCentralManager *central, CBPeripheral *peripheral, NSError *error) {
         [self showMiddleHint:@"连接失败" WithLoading:NO];
         [[BabyBluetooth shareBabyBluetooth]cancelScan];
@@ -185,11 +176,6 @@ const static CGFloat columnMargin = 20;
 //获取数据的处理
 
 -(void)didSendQueryData:(Byte [])bytes{
-//    NSLog(@"bytes============================%s",bytes);
-//    for(int i = 0; i < 6; i++) {
-//        NSLog(@"result: %d", bytes[i]);
-//    }
-    
     if(bytes[0] == 1) {
         self.mode = 0;
     }
@@ -255,6 +241,15 @@ const static CGFloat columnMargin = 20;
     if (self.view.frame.size.height==480) {
         content = 500;
     }
+    if (SCREEN_HEIGHT==736) {
+        _JGValue = 45;
+    }
+    else if (SCREEN_HEIGHT == 667){
+        _JGValue = 30;
+    }
+    else{
+        _JGValue = 10;
+    }
     _showScrollView.contentSize = CGSizeMake(self.view.frame.size.width, content);
     [self.view addSubview:_showScrollView];
     [self configSelf];
@@ -314,24 +309,7 @@ const static CGFloat columnMargin = 20;
 }
 
 #pragma mark - button action
-- (void)clickColorsButton: (UIButton *)sender {
-    NSInteger index = sender.tag - 50;
-    [sender setBackgroundImage:[UIImage imageNamed:_selectedBackColors[index]] forState:UIControlStateNormal];
-    [_colorButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (index != idx) {
-            [obj setBackgroundImage:[UIImage imageNamed:_backColors[idx]] forState:UIControlStateNormal];
-        }
-    }];
-    if (_mode != 0 && _mode != 2) {
-        self.mode = 0;
-    }
-    UIColor *color = _colors[index];
-    self.flickerButtons[1].backgroundColor = color;
-    self.breatheButtons[1].backgroundColor = color;
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"sigleColorChanged" object:nil userInfo:@{@"color": color}];
-    NSData *sendData = [[CMDModel sharedInstance] singleColors][index];
-    [[BlueServerManager sharedInstance] sendData:sendData];
-}
+
 - (void)clickflickerButton: (UIButton *)sender {
     NSInteger index = sender.tag - 60;
     CMDModel *cmd = [CMDModel sharedInstance];
@@ -366,9 +344,8 @@ const static CGFloat columnMargin = 20;
         self.mode = 3;
     }
     [[BlueServerManager sharedInstance] sendData:sendData];
-
 }
-
+//滑动切换颜色
 - (void)circularSlidervalueChanged: (EFCircularSlider *)sender {
     static int temp;
     if (temp == sender.currentValue * 1422) {
@@ -380,14 +357,41 @@ const static CGFloat columnMargin = 20;
     self.indictorView.backgroundColor = color;
     self.flickerButtons[1].backgroundColor = color;
     self.breatheButtons[1].backgroundColor = color;
-    
     [[NSNotificationCenter defaultCenter] postNotificationName:@"sigleColorChanged" object:nil userInfo:@{@"color": color}];
-    
     NSData *sendData = [[CMDModel sharedInstance] singleColorCMD:temp];
     //NSLog(@"send data");
     [[BlueServerManager sharedInstance] sendData:sendData];
+    //按钮复位。
+    if (self.mode == 3){
+        UIButton *btn = [self.view viewWithTag:71];
+        [self clickBreatheButton:btn];
+    }
+    else if (self.mode == 1){
+        UIButton *btn = [self.view viewWithTag:61];
+        [self clickflickerButton:btn];
+    }
+    
 }
-
+//点击按钮切换颜色。
+- (void)clickColorsButton: (UIButton *)sender {
+    NSInteger index = sender.tag - 50;
+    [sender setBackgroundImage:[UIImage imageNamed:_selectedBackColors[index]] forState:UIControlStateNormal];
+    [_colorButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (index != idx) {
+            [obj setBackgroundImage:[UIImage imageNamed:_backColors[idx]] forState:UIControlStateNormal];
+        }
+    }];
+    if (_mode != 0 && _mode != 2) {
+        self.mode = 0;
+    }
+    UIColor *color = _colors[index];
+    self.flickerButtons[1].backgroundColor = color;
+    self.breatheButtons[1].backgroundColor = color;
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"sigleColorChanged" object:nil userInfo:@{@"color": color}];
+    
+    NSData *sendData = [[CMDModel sharedInstance] singleColors][index];
+    [[BlueServerManager sharedInstance] sendData:sendData];
+}
 - (void)lightValueChanged: (UISlider *)sender {
     static int temp;
     if (temp == sender.value * 100) {
@@ -397,7 +401,7 @@ const static CGFloat columnMargin = 20;
     NSData *sendData = [[CMDModel sharedInstance] brightnessCMD:(temp)];
     [[BlueServerManager sharedInstance] sendData:sendData];
 }
-
+//频率滑块。
 - (void)frequencyValueChanged: (UISlider *)sender {
     static int temp;
     if (temp == sender.value * 10) {
@@ -405,9 +409,14 @@ const static CGFloat columnMargin = 20;
     }
     temp = sender.value * 10;
 
-    NSData *sendData = [[CMDModel sharedInstance] speedCMD:(temp)];
-    [[BlueServerManager sharedInstance] sendData:sendData];
+    if (_templeIndex != temp) {
+        _templeIndex = temp;
+        //值改变再发送数据
+        NSData *sendData = [[CMDModel sharedInstance] speedCMD:(temp)];
+        [[BlueServerManager sharedInstance] sendData:sendData];
+    }
 }
+   
 
 - (void)clickPowerButton: (UIButton *)sender {
     NSData *sendData;
@@ -482,12 +491,7 @@ const static CGFloat columnMargin = 20;
     }];
     [_showScrollView addSubview:self.lightSlider];
     [_showScrollView addSubview:self.frequencySlider];
-    [self.flickerButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [_showScrollView addSubview:obj];
-    }];
-    [self.breatheButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        [_showScrollView addSubview:obj];
-    }];
+ 
     [_showScrollView addSubview:self.circularSlider];
     [_showScrollView insertSubview:self.imageView belowSubview:_circularSlider];
     [_showScrollView insertSubview:self.indictorView belowSubview:_circularSlider];
@@ -498,10 +502,66 @@ const static CGFloat columnMargin = 20;
     [_showScrollView addSubview:self.titleLabel];
     [_showScrollView addSubview:self.backButton];
     
-    [_showScrollView addSubview:self.sliderTableView];
     _sliderTableView.tag = 1000;
-    [_showScrollView insertSubview:self.maskTableView belowSubview:_sliderTableView];
     
+    
+    [self.flickerButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [_showScrollView addSubview:obj];
+    }];
+    [self.breatheButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [_showScrollView addSubview:obj];
+    }];
+    
+    UIButton *lastBtn;
+    for (int i = 0; i<[self.flickerButtons count]; i++) {
+        UIButton *btn = self.flickerButtons[i];
+        if (i == 0){
+            [btn mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.top.equalTo(_lineView.mas_bottom).offset(_JGValue);
+                make.width.equalTo(@50);
+                make.height.equalTo(@38);
+                make.left.equalTo(@15);
+            }];
+        }
+        else{
+            [btn mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.centerY.equalTo(lastBtn);
+                make.left.equalTo(lastBtn.mas_right).offset(8);
+                make.width.height.equalTo(@38);
+            }];
+        }
+        lastBtn = btn;
+    
+    }
+    
+    for (int i = (int)[self.breatheButtons count]-1; i>=0; i--) {
+        UIButton *btn = self.breatheButtons[i];
+        if (i == (int)[self.breatheButtons count]-1){
+            [btn mas_makeConstraints:^(MASConstraintMaker *make){
+                make.right.equalTo(self.view.mas_right).offset(-15);
+                make.width.height.equalTo(@38);
+                make.centerY.equalTo(lastBtn);
+            }];
+        }
+        else if (i == 0){
+            [btn mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.centerY.equalTo(lastBtn);
+                make.right.equalTo(lastBtn.mas_left).offset(-8);
+                make.width.equalTo(@50);
+                make.height.equalTo(@38);
+            }];
+        }
+        else{
+            [btn mas_makeConstraints:^(MASConstraintMaker *make) {
+                make.width.height.centerY.equalTo(lastBtn);
+                make.right.equalTo(lastBtn.mas_left).offset(-8);
+            }];
+        }
+        lastBtn = btn;
+        
+    }
+    [_showScrollView addSubview:self.sliderTableView];
+    [_showScrollView insertSubview:self.maskTableView belowSubview:_sliderTableView];
     CGRect frame = _flickerButtons[0].frame;
     frame.origin.x = CGRectGetMinX(_flickerButtons[1].frame) - CGRectGetWidth(frame) + 0.0266667 * SCREEN_WIDTH;
     _flickerButtons[0].frame = frame;
@@ -511,18 +571,19 @@ const static CGFloat columnMargin = 20;
     _breatheButtons[0].frame = frame;
     //self.mode = 0;
     self.isShow = YES;
+    
     //mas布局
     [self.backButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(@15);
         make.top.equalTo(@60);
-        make.width.equalTo(@60);
-        make.height.equalTo(@26);
+        make.width.equalTo(@65);
+        make.height.equalTo(@30);
     }];
     self.backButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     [self.powerButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.equalTo(self.view.mas_right).offset(-15);
-        make.width.equalTo(@60);
-        make.height.equalTo(@26);
+        make.width.equalTo(@65);
+        make.height.equalTo(@30);
         make.top.equalTo(@60);
     }];
     
@@ -540,7 +601,7 @@ const static CGFloat columnMargin = 20;
             
             CGRect frame;
             frame.size = COLOR_BTN_SIZE;
-            CGFloat pointY = CGRectGetMaxY(self.frequencySlider.frame) + 15;
+            CGFloat pointY = CGRectGetMaxY(self.frequencySlider.frame) + _JGValue;
             CGFloat pointX = columnMargin + (CGRectGetWidth(frame) + margin) * i;
             frame.origin = CGPointMake(pointX, pointY);
             btn.frame = frame;
@@ -598,16 +659,6 @@ const static CGFloat columnMargin = 20;
         NSMutableArray<UIButton *> *temp = [NSMutableArray array];
         for (int i = 0; i < 3; i++) {
             UIButton *btn = [UIButton new];
-            
-            CGRect frame;
-            frame.size = MODE_BTN_SIZE;
-            if(i == 0) {
-                frame.size.width = 0.213333 * SCREEN_WIDTH;
-            }
-            CGFloat pointX = 0.048 * SCREEN_WIDTH + (CGRectGetWidth(frame) + 0.021333 * SCREEN_WIDTH) * i;
-            CGFloat pointY = _showScrollView.contentSize.height-60;
-            frame.origin = CGPointMake(pointX, pointY);
-            btn.frame = frame;
             [btn addTarget:self action:@selector(clickflickerButton:) forControlEvents:UIControlEventTouchUpInside];
             btn.tag = 60 + i;
             [temp addObject:btn];
@@ -635,17 +686,6 @@ const static CGFloat columnMargin = 20;
         NSMutableArray<UIButton *> *temp = [NSMutableArray array];
         for (int i = 0; i < 3; i++) {
             UIButton *btn = [UIButton new];
-            CGRect frame;
-            frame.size = MODE_BTN_SIZE;
-            if(i == 0) {
-                frame.size.width = 0.213333 * SCREEN_WIDTH;
-            }
-            CGFloat pointX = CGRectGetMaxX([self.flickerButtons lastObject].frame) + 0.138 * SCREEN_WIDTH + (CGRectGetWidth(frame) + 8) * i;
-            CGFloat pointY = _showScrollView.contentSize.height-60;
-            frame.origin = CGPointMake(pointX, pointY);
-            btn.frame = frame;
-            
-            
             [btn addTarget:self action:@selector(clickBreatheButton:) forControlEvents:UIControlEventTouchUpInside];
             btn.tag = 70 + i;
             [temp addObject:btn];
@@ -659,7 +699,6 @@ const static CGFloat columnMargin = 20;
             else {
                 btn.backgroundColor = [UIColor redColor];
             }
-
             btn.layer.cornerRadius = 12;
             btn.layer.masksToBounds = YES;
             btn.titleLabel.font = [UIFont systemFontOfSize:14];
@@ -846,7 +885,6 @@ const static CGFloat columnMargin = 20;
 #pragma mark - setter
 - (void)setMode:(int)mode {
     _mode = mode;
-    
     //单色闪烁
     if (mode == 0) {
         [self.flickerButtons[1] setImage:[UIImage imageNamed:@"selected.png"] forState:UIControlStateNormal];
@@ -933,8 +971,4 @@ const static CGFloat columnMargin = 20;
     UIView *view = [[UIApplication sharedApplication].delegate window];
     [MBProgressHUD hideHUDForView:view animated:YES];
 }
-
-
-
-
 @end

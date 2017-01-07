@@ -188,12 +188,15 @@ static CMDModel *_instance;
     if (speed > 10) {
         speed = 10;
     }
+    
+    
+    
     Byte temp[5];
     temp[0] = 0xea;
-    if (_bytes[1] == 0) {
-        _bytes[1] = 0x01;
-        _bytes[2]= 0x04;
-    }
+//    if (_bytes[1] == 0) {
+//        _bytes[1] = 0x01;
+//        _bytes[2]= 0x04;
+//    }
     temp[1] = 0x04;
     temp[2] = 0x01;
     temp[3] = speed;
@@ -481,7 +484,6 @@ static CMDModel *_instance;
 //    NSNotification *noti = [[NSNotification alloc] initWithName:@"CMDModelOnChanged" object:nil userInfo:@{@"on": [NSNumber numberWithBool:self.on]}];
 //    [[NSNotificationCenter defaultCenter] postNotification:noti];
 }
-
 #pragma mark - getter
 - (BOOL)on {
     return _bytes[6] != 0;

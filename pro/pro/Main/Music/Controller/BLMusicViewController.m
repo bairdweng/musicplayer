@@ -61,7 +61,7 @@ const static CGFloat min_height = 5;
     [self.view addSubview:_showScrollView];
     [self configSelf];
     [self configSubview];
-    [self configMusicListView];
+//    [self configMusicListView];//屏蔽音乐
     _isplayer = NO;
 }
 -(void)configMusicListView{

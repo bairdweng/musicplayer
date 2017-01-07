@@ -28,6 +28,11 @@ static NSString *const name = @"SH-HC-08";
 //发送数据。
 -(void)sendData:(NSData *)data{
     if (data&&self.currentPeripheral&&self.currentcharacteristic){
+//        NSLog(@"result============%@",data);
+//        Byte *testByte = (Byte *)[data bytes];
+//        for (int i = 0; i<[data length]; i++) {
+//            printf("testByte = %d\n",testByte[i]);
+//        }
         [self.currentPeripheral writeValue:data forCharacteristic:self.currentcharacteristic type:CBCharacteristicWriteWithoutResponse];
         [[NSNotificationCenter defaultCenter] postNotificationName:@"kBluServerSendData" object:nil userInfo:@{@"data": data}];
     }
