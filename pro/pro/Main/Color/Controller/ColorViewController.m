@@ -142,7 +142,7 @@ const static CGFloat columnMargin = 20;
             NSLog(@"订阅改变的时候错误");
             return;
         }
-//        NSData *data = characteristic.value;
+        NSData *data = characteristic.value;
 //        Byte *mybytes = (Byte *)[data bytes];
 //        for (int i = 0; i<[data length]; i++) {
 //            printf("testByte = %d\n",mybytes[i]);
