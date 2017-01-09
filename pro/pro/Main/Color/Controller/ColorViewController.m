@@ -33,6 +33,7 @@ const static CGFloat columnMargin = 20;
     NSArray<CBPeripheral *> *_peripherals;
     UIScrollView *_showScrollView;
     CGFloat _JGValue;
+    NSInteger _senderTwice;//发送次数。最多3次。
     int _templeIndex;
     BOOL _isplus;
     BOOL _on;
@@ -122,10 +123,10 @@ const static CGFloat columnMargin = 20;
     //获取最新的值
     [[BabyBluetooth shareBabyBluetooth]setBlockOnReadValueForCharacteristic:^(CBPeripheral *peripheral, CBCharacteristic *characteristic, NSError *error){
         if (!error){
-            if ([characteristic.UUID.UUIDString isEqualToString:@"FFE1"]) {
+            if ([characteristic.UUID.UUIDString isEqualToString:@"FFE1"]){
                 [BlueServerManager sharedInstance].currentcharacteristic = characteristic;
                 [[BlueServerManager sharedInstance].currentPeripheral setNotifyValue:YES forCharacteristic:characteristic];
-                if ([BlueServerManager sharedInstance].isSender) {
+                if ([BlueServerManager sharedInstance].isSender){
                     NSData *sendData = [[CMDModel sharedInstance] queryCMD];
                     [[BlueServerManager sharedInstance] sendQueryData:sendData];
                 }
@@ -141,11 +142,21 @@ const static CGFloat columnMargin = 20;
             NSLog(@"订阅改变的时候错误");
             return;
         }
-        NSData *data = characteristic.value;
-        Byte result[20] = {0x00};
-        [data getBytes:&result length:data.length];
-        if (data.length == 6 && !(result[0] == 0xea && result[1] == 0x0a)){
-            [self didSendQueryData:result];
+//        NSData *data = characteristic.value;
+//        Byte *mybytes = (Byte *)[data bytes];
+//        for (int i = 0; i<[data length]; i++) {
+//            printf("testByte = %d\n",mybytes[i]);
+//        }
+        if (data.length == 6){
+            [BlueServerManager sharedInstance].isSender = NO;
+            [self didSendQueryData:mybytes];
+            if (mybytes[0]==9||mybytes[0]==2) {
+                mybytes[0] = 1;
+                NSData *datas =  [[NSData alloc] initWithBytes:mybytes length:6];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [[BlueServerManager sharedInstance]sendData:datas];
+                });
+            }
         }
     }];
     
@@ -174,7 +185,6 @@ const static CGFloat columnMargin = 20;
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 //获取数据的处理
-
 -(void)didSendQueryData:(Byte [])bytes{
     if(bytes[0] == 1) {
         self.mode = 0;
@@ -191,7 +201,6 @@ const static CGFloat columnMargin = 20;
     else {
         return;
     }
-    [BlueServerManager sharedInstance].isSender = NO;
     int progess = 0;
     if(bytes[1] == 255  && bytes[3] == 0) {
         progess = bytes[2];
@@ -226,13 +235,46 @@ const static CGFloat columnMargin = 20;
         angle = (int)(360 - value * 360);
     }
     [_circularSlider setPosition:angle];
-    
-    
     self.lightSlider.value = bytes[4] / 100.0;
     self.frequencySlider.value = bytes[5] / 10.0;
     [[CMDModel sharedInstance] writeCMD:bytes];
+    int btnTag = [self GetCololorBtn:bytes];
+    if (btnTag != -1){
+        UIButton *colorbtn = [self.view viewWithTag:btnTag+50];
+        [self clickColorsButton:colorbtn];
+    }
 }
+//获取数据的颜色决定按钮是否要选中。
+-(int)GetCololorBtn:(Byte [])bytes{
+    int bytes_0 = bytes[1];
+    int bytes_1 = bytes[2];
+    int bytes_2 = bytes[3];
+    int bytes_3 = bytes[4];
+    //红色
+    if (bytes_0==255&&bytes_1==0&&bytes_2==0&&bytes_3==100){
+        return 0;
+    }
+    else if (bytes_0==0&&bytes_1==0&&bytes_2==255&&bytes_3==100){
+        return 1;
+    }
+    else if (bytes_0==0&&bytes_1==255&&bytes_2==0&&bytes_3==100){
+        return 2;
+    }
+    else if (bytes_0==255&&bytes_1==0&&bytes_2==255&&bytes_3==100){
+        return 3;
+    }
+    else if (bytes_0==255&&bytes_1==255&&bytes_2==0&&bytes_3==100){
+        return 4;
+    }
+    else if (bytes_0==0&&bytes_1==255&&bytes_2==255&&bytes_3==100){
+        return 5;
 
+    }
+    else if (bytes_0==255&&bytes_1==255&&bytes_2==255&&bytes_3==100){
+        return 6;
+    }
+    return -1;
+}
 
 -(void)viewDidLoad {
     [super viewDidLoad];
@@ -306,6 +348,7 @@ const static CGFloat columnMargin = 20;
     [BlueServerManager sharedInstance].currentPeripheral = Peripheral;
     [self showMiddleHint:@"正在连接" WithLoading:YES];
     [BlueServerManager sharedInstance].isSender = YES;
+    _senderTwice = 0;
 }
 
 #pragma mark - button action
@@ -381,16 +424,24 @@ const static CGFloat columnMargin = 20;
             [obj setBackgroundImage:[UIImage imageNamed:_backColors[idx]] forState:UIControlStateNormal];
         }
     }];
-    if (_mode != 0 && _mode != 2) {
-        self.mode = 0;
-    }
     UIColor *color = _colors[index];
     self.flickerButtons[1].backgroundColor = color;
     self.breatheButtons[1].backgroundColor = color;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"sigleColorChanged" object:nil userInfo:@{@"color": color}];
-    
-    NSData *sendData = [[CMDModel sharedInstance] singleColors][index];
-    [[BlueServerManager sharedInstance] sendData:sendData];
+    //按钮复位。
+    if (self.mode == 3){
+        UIButton *btn = [self.view viewWithTag:71];
+        [self clickBreatheButton:btn];
+    }
+    else if (self.mode == 1){
+        UIButton *btn = [self.view viewWithTag:61];
+        [self clickflickerButton:btn];
+    }
+    //颜色延迟执行，防止蓝牙数据丢失。
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSData *sendData = [[CMDModel sharedInstance] singleColors][index];
+        [[BlueServerManager sharedInstance] sendData:sendData];
+    });
 }
 - (void)lightValueChanged: (UISlider *)sender {
     static int temp;
@@ -408,12 +459,20 @@ const static CGFloat columnMargin = 20;
         return;
     }
     temp = sender.value * 10;
-
+    //值改变再发送数据
     if (_templeIndex != temp) {
         _templeIndex = temp;
-        //值改变再发送数据
-        NSData *sendData = [[CMDModel sharedInstance] speedCMD:(temp)];
-        [[BlueServerManager sharedInstance] sendData:sendData];
+        //等于0的时候延迟执行，防止蓝牙数据丢失。
+        if (_templeIndex == 0) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                NSData *sendData = [[CMDModel sharedInstance] speedCMD:(temp)];
+                [[BlueServerManager sharedInstance] sendData:sendData];
+            });
+        }
+        else{
+            NSData *sendData = [[CMDModel sharedInstance] speedCMD:(temp)];
+            [[BlueServerManager sharedInstance] sendData:sendData];
+        }
     }
 }
    
@@ -501,10 +560,7 @@ const static CGFloat columnMargin = 20;
     [_showScrollView addSubview:self.powerButton];
     [_showScrollView addSubview:self.titleLabel];
     [_showScrollView addSubview:self.backButton];
-    
     _sliderTableView.tag = 1000;
-    
-    
     [self.flickerButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         [_showScrollView addSubview:obj];
     }];
@@ -531,9 +587,7 @@ const static CGFloat columnMargin = 20;
             }];
         }
         lastBtn = btn;
-    
     }
-    
     for (int i = (int)[self.breatheButtons count]-1; i>=0; i--) {
         UIButton *btn = self.breatheButtons[i];
         if (i == (int)[self.breatheButtons count]-1){

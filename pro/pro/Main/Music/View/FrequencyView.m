@@ -44,15 +44,13 @@ const static CGFloat height = 200;
 }
 
 - (void)configSubview {
-    
     __weak typeof(self) weakSelf = self;
     [self.elements enumerateObjectsUsingBlock:^(UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf addSubview:obj];
     }];
-    
-}
 
+}
 - (NSArray<NSNumber *> *)calculateEelementsHeight: (NSInteger)volume {
     NSMutableArray<NSNumber *> *numbers = [NSMutableArray array];
     for (int i = 0; i < _number; i++) {
