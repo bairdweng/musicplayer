@@ -52,6 +52,7 @@
 		9911F9981E13CC0800A08E3E /* MusicList.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9911F9921E13CC0800A08E3E /* MusicList.storyboard */; };
 		9911F9991E13CC0800A08E3E /* MusicListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9911F9941E13CC0800A08E3E /* MusicListCell.m */; };
 		992CC4431E1C911B003103B8 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 992CC4421E1C911B003103B8 /* Images.xcassets */; };
+		998C39621E252E630080A9A8 /* ServiceManage.m in Sources */ = {isa = PBXBuildFile; fileRef = 998C39611E252E630080A9A8 /* ServiceManage.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -145,6 +146,8 @@
 		9911F9931E13CC0800A08E3E /* MusicListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MusicListCell.h; sourceTree = "<group>"; };
 		9911F9941E13CC0800A08E3E /* MusicListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MusicListCell.m; sourceTree = "<group>"; };
 		992CC4421E1C911B003103B8 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		998C39601E252E630080A9A8 /* ServiceManage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ServiceManage.h; path = ../../../Resorce/ServiceManage.h; sourceTree = "<group>"; };
+		998C39611E252E630080A9A8 /* ServiceManage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ServiceManage.m; path = ../../../Resorce/ServiceManage.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -569,6 +572,8 @@
 		9911F98B1E13CC0800A08E3E /* Music */ = {
 			isa = PBXGroup;
 			children = (
+				998C39601E252E630080A9A8 /* ServiceManage.h */,
+				998C39611E252E630080A9A8 /* ServiceManage.m */,
 				9911F98C1E13CC0800A08E3E /* Music.storyboard */,
 				9911F98D1E13CC0800A08E3E /* MusicIndicator.h */,
 				9911F98E1E13CC0800A08E3E /* MusicIndicator.m */,
@@ -751,6 +756,7 @@
 				9911F9831E13B96100A08E3E /* MusicHandler.m in Sources */,
 				990D37AB1E1E2D3900926D08 /* BabyDefine.m in Sources */,
 				990D37AF1E1E2D3900926D08 /* BabySpeaker.m in Sources */,
+				998C39621E252E630080A9A8 /* ServiceManage.m in Sources */,
 				9911F9811E13B96100A08E3E /* MusicListEntity.m in Sources */,
 				02E8EE721D8A814A00C65F82 /* MainTabBarController.m in Sources */,
 				990D37AC1E1E2D3900926D08 /* BabyOptions.m in Sources */,

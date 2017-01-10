@@ -144,9 +144,6 @@ const static CGFloat columnMargin = 20;
         }
         NSData *data = characteristic.value;
         Byte *mybytes = (Byte *)[data bytes];
-//        for (int i = 0; i<[data length]; i++) {
-//            printf("testByte = %d\n",mybytes[i]);
-//        }
         if (data.length == 6){
             [BlueServerManager sharedInstance].isSender = NO;
             [self didSendQueryData:mybytes];
@@ -475,7 +472,6 @@ const static CGFloat columnMargin = 20;
         }
     }
 }
-   
 
 - (void)clickPowerButton: (UIButton *)sender {
     NSData *sendData;

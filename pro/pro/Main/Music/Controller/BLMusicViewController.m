@@ -28,6 +28,7 @@ const static CGFloat min_height = 5;
     MusicListViewController *_listViewController;
     BOOL _on;
     BOOL _isplayer;
+    double _currentValue;
 }
 @property (nonatomic, strong) UIButton *singleButton;
 @property (nonatomic, strong) UIButton *mulButton;
@@ -109,6 +110,7 @@ const static CGFloat min_height = 5;
     else {
         _titleLabel.text = @"RGB Bluetooth";
         [[VoiceHelper sharedInstance] record];
+        [[BlueServerManager sharedInstance] sendData:[[CMDModel sharedInstance] musicCMD:0]];
     }
 }
 - (void)viewDidDisappear:(BOOL)animated {
@@ -132,9 +134,14 @@ const static CGFloat min_height = 5;
 }
 
 - (void)sliderValueChanged: (UISlider *)sender {
-    [CMDModel sharedInstance].sentivity =  1.0 / sender.value;
+    [self reloadValue:sender];
 }
-
+-(void)reloadValue:(UISlider *)sender{
+    _currentValue = 1-sender.value/100;
+    if(_currentValue<0.2){
+        _currentValue = 0.2;
+    }
+}
 - (void)clickPowerButton: (UIButton *)sender {
     NSData *sendData;
     NSString *name;
@@ -167,17 +174,24 @@ const static CGFloat min_height = 5;
 
 #pragma mark - VoiceHelperDelegate
 - (void)volumeDidChanged:(double)volume{
-    if (!_isplayer) {
+    if (!_isplayer){
+        if (volume<_currentValue){
+            volume = 0;
+        }
         NSInteger temp = (NSInteger)((volume * _element_height) * 1.5);
         _frequencyView.volume = temp;
-        NSData *sendData;
-        if (_flag) {
-            sendData = [[CMDModel sharedInstance] singleMusicCMD:volume];
-        }
-        else {
-            sendData = [[CMDModel sharedInstance] musicCMD:volume];
-        }
-        [[BlueServerManager sharedInstance] sendData:sendData];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            NSData *sendData;
+            if (_flag) {
+                sendData = [[CMDModel sharedInstance] singleMusicCMD:volume];
+            }
+            else {
+                sendData = [[CMDModel sharedInstance] musicCMD:volume];
+            }
+            [[BlueServerManager sharedInstance] sendData:sendData];
+        });
+        
+        
     }
 }
 #pragma mark - private
@@ -298,6 +312,7 @@ const static CGFloat min_height = 5;
         if (ISTOTAKEEFFECT) {
             _sensitivitySlider.minimumTrackTintColor = THETIMECOLOR;
         }
+        [self reloadValue:_sensitivitySlider];
         //_element_height = _sensitivitySlider.value;
         
     }

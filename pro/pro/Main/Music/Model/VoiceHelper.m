@@ -35,13 +35,7 @@ static VoiceHelper *_instance;
     float temp = [_recorder peakPowerForChannel:0];
     //转化范围为0 － 1；
     double result = pow(10, (0.05 * temp));
-    //设置麦克风阀值。
-    if (result>0.2) {
-        [_delegate volumeDidChanged:result];
-    }
-    else{
-        [_delegate volumeDidChanged:0];
-    }
+    [_delegate volumeDidChanged:result];
 }
 - (void)pause {
     [self.recorder pause];
@@ -69,23 +63,4 @@ static VoiceHelper *_instance;
     }
     return _recorder;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @end

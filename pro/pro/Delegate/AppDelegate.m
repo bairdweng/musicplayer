@@ -10,8 +10,7 @@
 #import "MainTabBarController.h"
 #import "MainMacos.h"
 #import "BlueServerManager.h"
-
-
+#import "ServiceManage.h"
 @interface AppDelegate ()
 
 @end
@@ -27,9 +26,10 @@
     _window = [[UIWindow alloc] initWithFrame: MAINSCREEN];
     _window.rootViewController = [MainTabBarController new];
     [_window makeKeyAndVisible];
+    //注册设备。
+    [[ServiceManage sharedManager]regisDevice];
 //    BlueServerManager *manager = [BlueServerManager sharedInstance];
 //    [manager startScan];
-    
     return YES;
 }
 
