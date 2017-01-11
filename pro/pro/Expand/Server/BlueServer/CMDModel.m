@@ -277,6 +277,7 @@ static CMDModel *_instance;
 - (NSData *)singleColorCMD: (int)progess {
     [self single:progess];
     _bytes[7] = [self examine];
+    
     [self senNotifition];
     return [[NSData alloc] initWithBytes:_bytes length:byte_len];
 }

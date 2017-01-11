@@ -240,6 +240,12 @@ const static CGFloat columnMargin = 20;
         UIButton *colorbtn = [self.view viewWithTag:btnTag+50];
         [self clickColorsButton:colorbtn];
     }
+    else{
+        //颜色按钮复位。
+        [_colorButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            [obj setBackgroundImage:[UIImage imageNamed:_backColors[idx]] forState:UIControlStateNormal];
+        }];
+    }
 }
 //获取数据的颜色决定按钮是否要选中。
 -(int)GetCololorBtn:(Byte [])bytes{
@@ -358,11 +364,11 @@ const static CGFloat columnMargin = 20;
         return;
     }
     else if (index == 1) {
-        sendData = cmd.threeBlinkCMD;
+        sendData = cmd.threeBlinkCMD;//单色闪烁
         self.mode = 0;
     }
     else if (index == 2) {
-        sendData = cmd.sevenBlinkCMD;
+        sendData = cmd.sevenBlinkCMD;//多彩闪烁。
         self.mode = 1;
     }
     [[BlueServerManager sharedInstance] sendData:sendData];
@@ -376,11 +382,11 @@ const static CGFloat columnMargin = 20;
         return;
     }
     else if (index == 1) {
-        sendData = cmd.threeBreathCMD;
+        sendData = cmd.threeBreathCMD;//单色渐变。
         self.mode = 2;
     }
     else if (index == 2) {
-        sendData = cmd.sevenBreathCMD;
+        sendData = cmd.sevenBreathCMD;//多彩渐变。
         self.mode = 3;
     }
     [[BlueServerManager sharedInstance] sendData:sendData];
@@ -410,7 +416,9 @@ const static CGFloat columnMargin = 20;
         UIButton *btn = [self.view viewWithTag:61];
         [self clickflickerButton:btn];
     }
-    
+    [_colorButtons enumerateObjectsUsingBlock:^(UIButton * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [obj setBackgroundImage:[UIImage imageNamed:_backColors[idx]] forState:UIControlStateNormal];
+    }];
 }
 //点击按钮切换颜色。
 - (void)clickColorsButton: (UIButton *)sender {
@@ -425,20 +433,35 @@ const static CGFloat columnMargin = 20;
     self.flickerButtons[1].backgroundColor = color;
     self.breatheButtons[1].backgroundColor = color;
     [[NSNotificationCenter defaultCenter] postNotificationName:@"sigleColorChanged" object:nil userInfo:@{@"color": color}];
-    //按钮复位。
-    if (self.mode == 3){
-        UIButton *btn = [self.view viewWithTag:71];
-        [self clickBreatheButton:btn];
+    //记住模式位。
+    NSData *sendData = [[CMDModel sharedInstance] singleColors][index];
+    Byte *testByte = (Byte *)[sendData bytes];
+    //单色闪烁到多彩渐变。
+    switch (self.mode) {
+        case 0:{
+            testByte[1] = 1;
+        }
+            break;
+        case 1:{
+            testByte[1] = 1;
+            self.mode = 0;
+        }
+            break;
+        case 2:{
+            testByte[1] = 5;
+        }
+            break;
+        case 3:{
+            testByte[1] = 5;
+            self.mode = 2;
+        }
+            break;
+            
+        default:
+            break;
     }
-    else if (self.mode == 1){
-        UIButton *btn = [self.view viewWithTag:61];
-        [self clickflickerButton:btn];
-    }
-    //颜色延迟执行，防止蓝牙数据丢失。
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSData *sendData = [[CMDModel sharedInstance] singleColors][index];
-        [[BlueServerManager sharedInstance] sendData:sendData];
-    });
+    NSData *newData =  [[NSData alloc] initWithBytes:testByte length:8];
+    [[BlueServerManager sharedInstance] sendData:newData];
 }
 - (void)lightValueChanged: (UISlider *)sender {
     static int temp;
