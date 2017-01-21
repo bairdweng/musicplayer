@@ -146,6 +146,8 @@
 		9911F9931E13CC0800A08E3E /* MusicListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MusicListCell.h; sourceTree = "<group>"; };
 		9911F9941E13CC0800A08E3E /* MusicListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MusicListCell.m; sourceTree = "<group>"; };
 		992CC4421E1C911B003103B8 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		995DED581E33493B00D3C1A0 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		995DED591E33493C00D3C1A0 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		998C39601E252E630080A9A8 /* ServiceManage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ServiceManage.h; path = ../../../Resorce/ServiceManage.h; sourceTree = "<group>"; };
 		998C39611E252E630080A9A8 /* ServiceManage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ServiceManage.m; path = ../../../Resorce/ServiceManage.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -656,6 +658,7 @@
 				en,
 				Base,
 				"zh-Hans",
+				ja,
 			);
 			mainGroup = 02E8EE391D8A7E0C00C65F82;
 			productRefGroup = 02E8EE431D8A7E0C00C65F82 /* Products */;
@@ -786,6 +789,7 @@
 			children = (
 				02E8EE541D8A7E0C00C65F82 /* Base */,
 				42DA31F31DC2335200487322 /* zh-Hans */,
+				995DED581E33493B00D3C1A0 /* ja */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -795,6 +799,7 @@
 			children = (
 				42DA31F11DC2325D00487322 /* en */,
 				42DA31F41DC2335200487322 /* zh-Hans */,
+				995DED591E33493C00D3C1A0 /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

@@ -107,17 +107,17 @@ const static CGFloat columnMargin = 20;
         [self.sliderTableView reloadData];
     }];
     [[BabyBluetooth shareBabyBluetooth]setBlockOnFailToConnect:^(CBCentralManager *central, CBPeripheral *peripheral, NSError *error) {
-        [self showMiddleHint:@"连接失败" WithLoading:NO];
+        [self showMiddleHint:NSLocalizedString(@"blueError", nil) WithLoading:NO];
         [[BabyBluetooth shareBabyBluetooth]cancelScan];
         [self ConnectSucessError];
     }];
     [[BabyBluetooth shareBabyBluetooth]setBlockOnConnected:^(CBCentralManager *central, CBPeripheral *peripheral){
         self.isShow = NO;
-        [self showMiddleHint:@"连接成功" WithLoading:NO];
+        [self showMiddleHint:NSLocalizedString(@"blueSucess", nil) WithLoading:NO];
         [self ConnectSucessDeal];
     }];
     [[BabyBluetooth shareBabyBluetooth]setBlockOnDisconnect:^(CBCentralManager *central, CBPeripheral *peripheral, NSError *error) {
-        [self showMiddleHint:@"蓝牙已断开" WithLoading:NO];
+        [self showMiddleHint:NSLocalizedString(@"blueDissContent", nil) WithLoading:NO];
         [self ConnectSucessError];
     }];
     //获取最新的值
@@ -348,7 +348,7 @@ const static CGFloat columnMargin = 20;
     [BabyBluetooth shareBabyBluetooth].having(Peripheral).connectToPeripherals().discoverServices().discoverCharacteristics()
     .readValueForCharacteristic().discoverDescriptorsForCharacteristic().readValueForDescriptors().begin();
     [BlueServerManager sharedInstance].currentPeripheral = Peripheral;
-    [self showMiddleHint:@"正在连接" WithLoading:YES];
+    [self showMiddleHint:NSLocalizedString(@"blueContent", nil) WithLoading:YES];
     [BlueServerManager sharedInstance].isSender = YES;
     _senderTwice = 0;
 }
